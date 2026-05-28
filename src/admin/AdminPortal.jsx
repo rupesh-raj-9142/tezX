@@ -24,6 +24,7 @@ import AnalyticsChart from './components/dashboard/AnalyticsChart';
 function AdminPortal() {
   const [activeFeature, setActiveFeature] = useState('dashboard');
   const [activeLeadContext, setActiveLeadContext] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // States for Team Card quick actions
   const [activeVideoCall, setActiveVideoCall] = useState(null);
@@ -548,20 +549,40 @@ function AdminPortal() {
 
   return (
     <div className="bg-[#f3f3f5] font-body-md text-[#111111] w-screen h-screen flex items-center justify-center overflow-hidden selection:bg-brand-blue/10">
-      {/* Centered Main Rounded Wrapper Container */}
-      <div className="w-[98vw] h-[98vh] bg-white rounded-[32px] shadow-[0_10px_40px_rgba(0,0,0,0.06)] overflow-hidden flex border border-[#ececec]">
+      {/* Centered Main Rounded Wrapper Container - Fullscreen on mobile, rounded on desktop */}
+      <div className="w-full h-full md:w-[98vw] md:h-[98vh] bg-white md:rounded-[32px] shadow-none md:shadow-[0_10px_40px_rgba(0,0,0,0.06)] overflow-hidden flex border-none md:border md:border-[#ececec] relative">
 
-        {/* Left Navigation Sidebar */}
-        <Sidebar activeFeature={activeFeature} setActiveFeature={setActiveFeature} />
+        {/* Left Navigation Sidebar - Absolute overlay on mobile, static on desktop */}
+        <div className={`fixed inset-y-0 left-0 z-50 transform lg:transform-none lg:static ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} transition-transform duration-300 ease-in-out`}>
+          <Sidebar 
+            activeFeature={activeFeature} 
+            setActiveFeature={(f) => { 
+              setActiveFeature(f); 
+              setIsSidebarOpen(false); 
+            }} 
+          />
+        </div>
+
+        {/* Backdrop for Mobile Sidebar Overlay */}
+        {isSidebarOpen && (
+          <div 
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs lg:hidden animate-in fade-in duration-200"
+          />
+        )}
 
         {/* Center Main Dashboard/Feature Pane */}
         <div className="flex-grow h-full flex flex-col min-w-0 bg-white">
 
-          {/* Main Top Header Section */}
-          <Header adminProfile={adminProfile} onOpenProfile={handleOpenProfile} />
+          {/* Main Top Header Section - Accepts sidebar toggle callback */}
+          <Header 
+            adminProfile={adminProfile} 
+            onOpenProfile={handleOpenProfile} 
+            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} 
+          />
 
-          {/* Feature Scrollable Body Container */}
-          <div className="flex-grow overflow-y-auto p-10 bg-white">
+          {/* Feature Scrollable Body Container - Responsive Padding */}
+          <div className="flex-grow overflow-y-auto p-4 md:p-10 bg-white">
             {activeFeature === 'dashboard' && (
               <div className="animate-in fade-in duration-300">
                 <HeroSection onAddLead={() => setIsNewLeadModalOpen(true)} />

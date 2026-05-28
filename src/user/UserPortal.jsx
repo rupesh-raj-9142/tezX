@@ -310,11 +310,12 @@ function UserPortal() {
 
   return (
     <div className="bg-[#f3f3f5] font-body-md text-[#111111] w-screen h-screen flex items-center justify-center overflow-hidden selection:bg-brand-blue/10">
-      <div className="w-[98vw] h-[98vh] bg-white rounded-[32px] shadow-[0_10px_40px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col border border-[#ececec]">
+      {/* Centered Main Rounded Wrapper Container - Fullscreen on mobile, rounded on desktop */}
+      <div className="w-full h-full md:w-[98vw] md:h-[98vh] bg-white md:rounded-[32px] shadow-none md:shadow-[0_10px_40px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col border-none md:border md:border-[#ececec]">
 
-        {/* TopAppBar */}
+        {/* TopAppBar - Responsive Padding */}
         <header className="bg-white border-b border-[#ececec] h-20 flex-shrink-0 flex items-center">
-          <div className="flex justify-between items-center w-full px-10 h-full">
+          <div className="flex justify-between items-center w-full px-4 md:px-10 h-full">
             {/* Logo Section */}
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 bg-black rounded-lg flex items-center justify-center shadow-md relative overflow-hidden group">
@@ -322,60 +323,63 @@ function UserPortal() {
                 <div className="w-4 h-4 bg-white/20 absolute rotate-45 -top-1 -left-1" />
                 <div className="w-3.5 h-3.5 bg-white absolute rotate-12 rounded-sm" />
               </div>
-              <span className="text-[32px] font-black tracking-tight font-poppins flex items-center select-none">
+              <span className="text-[28px] sm:text-[32px] font-black tracking-tight font-poppins flex items-center select-none">
                 <span className="text-black">Tez</span><span className="text-[#1769ff]">X</span>
               </span>
             </div>
 
-            {/* Premium Center Segmented Navigation Tabs */}
-            <div className="bg-[#f3f3f5] rounded-xl p-1 flex gap-1 border border-[#ececec] ml-4 select-none">
+            {/* Premium Center Segmented Navigation Tabs - Responsive text hiding */}
+            <div className="bg-[#f3f3f5] rounded-xl p-1 flex gap-1 border border-[#ececec] mx-2 sm:mx-4 select-none">
               <button
                 onClick={() => setActiveTab('inquiry')}
-                className={`px-5 py-2 rounded-lg text-[14px] font-extrabold transition-all flex items-center gap-2 ${activeTab === 'inquiry'
+                className={`px-3 sm:px-5 py-2 rounded-lg text-[13px] sm:text-[14px] font-extrabold transition-all flex items-center gap-1.5 ${activeTab === 'inquiry'
                   ? 'bg-white shadow-sm text-[#1769ff]'
                   : 'text-[#8f8f95] hover:bg-black/5 hover:text-black'
                   }`}
               >
                 <span className="material-symbols-outlined text-[18px]">rate_review</span>
-                Inquiry Desk
+                <span className="hidden sm:inline">Inquiry Desk</span>
               </button>
               <button
                 onClick={() => setActiveTab('workspace')}
-                className={`px-5 py-2 rounded-lg text-[14px] font-extrabold transition-all flex items-center gap-2 ${activeTab === 'workspace'
+                className={`px-3 sm:px-5 py-2 rounded-lg text-[13px] sm:text-[14px] font-extrabold transition-all flex items-center gap-1.5 ${activeTab === 'workspace'
                   ? 'bg-white shadow-sm text-[#1769ff]'
                   : 'text-[#8f8f95] hover:bg-black/5 hover:text-black'
                   }`}
               >
                 <span className="material-symbols-outlined text-[18px]">business_center</span>
-                Client Workspace
+                <span className="hidden sm:inline">Client Workspace</span>
               </button>
             </div>
 
-            <div className="flex items-center gap-3">
+            {/* Action buttons - Icon only on mobile to save layout spacing */}
+            <div className="flex items-center gap-2 sm:gap-3">
               <a
                 onClick={() => {
                   window.history.pushState({}, '', '#/admin');
                   window.dispatchEvent(new Event('popstate'));
                 }}
-                className="flex items-center gap-2 py-2 px-4 rounded-full font-semibold text-[14px] bg-[#f3f3f5] text-black hover:bg-black/10 cursor-pointer transition-all duration-200"
+                className="flex items-center gap-1.5 py-2 px-3 sm:px-4 rounded-full font-semibold text-[13px] sm:text-[14px] bg-[#f3f3f5] text-black hover:bg-black/10 cursor-pointer transition-all duration-200"
+                title="Admin Portal"
               >
                 <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
-                <span>Admin Portal</span>
+                <span className="hidden md:inline">Admin Portal</span>
               </a>
 
               <button
                 onClick={() => setIsLoggedOut(true)}
-                className="flex items-center gap-2 py-2 px-4 rounded-full font-semibold text-[14px] bg-[#ffebee] text-[#ba1a1a] hover:bg-[#ffcdd2] cursor-pointer transition-all duration-200 border-none"
+                className="flex items-center gap-1.5 py-2 px-3 sm:px-4 rounded-full font-semibold text-[13px] sm:text-[14px] bg-[#ffebee] text-[#ba1a1a] hover:bg-[#ffcdd2] cursor-pointer transition-all duration-200 border-none"
+                title="Logout"
               >
                 <span className="material-symbols-outlined text-[18px]">logout</span>
-                <span>Logout</span>
+                <span className="hidden md:inline">Logout</span>
               </button>
             </div>
           </div>
         </header>
 
-        {/* Scrollable Container */}
-        <div className="flex-grow overflow-y-auto p-10 bg-white">
+        {/* Scrollable Container - Responsive Padding */}
+        <div className="flex-grow overflow-y-auto p-4 md:p-10 bg-white">
 
           {/* TAB 1: INQUIRY DESK VIEW */}
           {activeTab === 'inquiry' && (

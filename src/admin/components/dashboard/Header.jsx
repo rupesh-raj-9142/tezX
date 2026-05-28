@@ -1,8 +1,8 @@
 import React from 'react';
-import { Bell, ChevronDown } from 'lucide-react';
+import { Bell, ChevronDown, Menu } from 'lucide-react';
 import SearchBar from './SearchBar';
 
-function Header({ adminProfile = {}, onOpenProfile }) {
+function Header({ adminProfile = {}, onOpenProfile, onToggleSidebar }) {
   const initials = adminProfile.name
     ? adminProfile.name
         .split(' ')
@@ -13,9 +13,18 @@ function Header({ adminProfile = {}, onOpenProfile }) {
     : 'AD';
 
   return (
-    <header className="flex justify-between items-center w-full h-[88px] border-b border-[#ececec] px-10 bg-white">
-      {/* Search Bar */}
-      <SearchBar />
+    <header className="flex justify-between items-center w-full h-[88px] border-b border-[#ececec] px-4 md:px-10 bg-white">
+      {/* Search Bar & Mobile Hamburger Toggle */}
+      <div className="flex items-center gap-3 flex-grow md:flex-grow-0 w-full md:w-auto">
+        <button 
+          onClick={onToggleSidebar}
+          className="lg:hidden p-2 rounded-full hover:bg-[#f5f5f6] text-[#444] hover:text-[#1769ff] transition-all cursor-pointer active:scale-95 mr-1"
+          title="Toggle Sidebar"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+        <SearchBar />
+      </div>
 
       {/* Right top Actions */}
       <div className="flex items-center gap-6">
@@ -42,7 +51,7 @@ function Header({ adminProfile = {}, onOpenProfile }) {
             </div>
           )}
           
-          <div className="flex flex-col text-left">
+          <div className="hidden sm:flex flex-col text-left">
             <span className="font-label-md text-[14px] font-bold text-[#111111] group-hover:text-[#1769ff] transition-colors leading-tight">
               {adminProfile.name || 'Alex'}
             </span>
@@ -51,7 +60,7 @@ function Header({ adminProfile = {}, onOpenProfile }) {
             </span>
           </div>
           
-          <ChevronDown className="w-4 h-4 text-[#8f8f95] group-hover:text-[#111111] transition-colors duration-200 ml-1" />
+          <ChevronDown className="hidden sm:block w-4 h-4 text-[#8f8f95] group-hover:text-[#111111] transition-colors duration-200 ml-1" />
         </div>
       </div>
     </header>

@@ -6,7 +6,7 @@ function HeroSection({ onAddLead }) {
   return (
     <section className="flex flex-col items-start text-left mb-10">
       {/* Large Bold Heading */}
-      <h1 className="text-[52px] xl:text-[64px] font-extrabold text-[#111111] leading-[1.08] tracking-[-0.03em] mb-4">
+      <h1 className="text-[38px] sm:text-[52px] xl:text-[64px] font-extrabold text-[#111111] leading-[1.08] tracking-[-0.03em] mb-4">
         All your business <br />
         <span className="text-[#1769ff]">on one platform.</span>
       </h1>
