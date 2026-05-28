@@ -67,7 +67,7 @@ function Sidebar({ activeFeature, setActiveFeature }) {
               window.history.pushState({}, '', '/');
               window.dispatchEvent(new Event('popstate'));
             }}
-            className="flex items-center gap-4 py-2 px-3 rounded-xl font-medium text-[16px] cursor-pointer text-[#444] hover:bg-black/5 hover:text-black transition-all duration-200 mt-1 border-t border-[#ececec]/60 pt-2"
+            className="flex items-center gap-4 py-2 px-3 rounded-xl font-medium text-[16px] cursor-pointer text-[#444] hover:bg-black/5 hover:text-black transition-all duration-200"
           >
             <Globe className="w-5 h-5 text-[#8f8f95]" />
             <span>User Portal</span>
@@ -75,18 +75,16 @@ function Sidebar({ activeFeature, setActiveFeature }) {
         </nav>
       </div>
 
-      {/* Sidebar Bottom: Minimalist Sync Active Status */}
-      <div className="bg-white rounded-[18px] py-3 px-4 shadow-sm border border-[#ececec]/60 flex items-center justify-center gap-2 w-full select-none group hover:shadow-md transition-all duration-300">
-        {/* Pulsing indicator */}
-        <span className="relative flex h-2 w-2 flex-shrink-0">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#107c41] opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#107c41]"></span>
+      {/* Sidebar Bottom: Premium Sync Active Status Pill (Exact image styling) */}
+      <div className="bg-white rounded-full py-3 px-4 shadow-[0_4px_16px_rgba(0,0,0,0.04)] border border-[#ececec]/75 flex items-center justify-center gap-2.5 w-full select-none">
+        <span className="w-2.5 h-2.5 rounded-full bg-[#107c41] flex-shrink-0" />
+        <span className="text-[13px] font-black text-slate-800 tracking-tight">
+          Tez<span className="text-[#1769ff]">X</span> CRM Sync Active
         </span>
-        <span className="text-[12px] font-extrabold text-[#111111] tracking-wide">Tez<span className="text-[#1769ff]">X</span> CRM Sync Active</span>
       </div>
 
       {/* Subtle Copyright Line */}
-      <div className="text-[11px] text-[#8f8f95] text-center w-full mt-3 font-bold select-none tracking-wide">
+      <div className="text-[12px] text-[#8f8f95] text-center w-full mt-2 font-bold select-none tracking-wide">
         © 2026 Tez<span className="text-[#1769ff]">X</span> CRM
       </div>
     </aside>
