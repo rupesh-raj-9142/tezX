@@ -8,7 +8,6 @@ import {
   Calendar,
   Settings,
   Globe,
-  ArrowRight,
   Contact
 } from 'lucide-react';
 
@@ -32,7 +31,6 @@ function Sidebar({ activeFeature, setActiveFeature }) {
           {/* Black geometric cube-like logo */}
           <div className="w-9 h-9 bg-black rounded-lg flex items-center justify-center shadow-md relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-tr from-gray-900 to-black" />
-            <div className="w-4 h-4 bg-white/20 absolute rotate-45 -top-1 -left-1" />
             <div className="w-3.5 h-3.5 bg-white absolute rotate-12 rounded-sm" />
           </div>
           <span className="text-[36px] font-black tracking-tight font-poppins flex items-center select-none">
