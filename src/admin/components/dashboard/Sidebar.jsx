@@ -74,13 +74,16 @@ function Sidebar({ activeFeature, setActiveFeature }) {
       </div>
 
       {/* Sidebar Bottom: Minimalist Sync Active Status */}
-      <div className="bg-white rounded-[18px] py-3 px-4 shadow-sm border border-[#ececec]/60 flex items-center justify-center gap-2 w-full select-none group hover:shadow-md transition-all duration-300">
-        {/* Pulsing indicator */}
-        <span className="relative flex h-2 w-2 flex-shrink-0">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#107c41] opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#107c41]"></span>
-        </span>
-        <span className="text-[12px] font-extrabold text-[#111111] tracking-wide">Tez<span className="text-[#1769ff]">X</span> CRM Sync Active</span>
+      <div className="bg-white rounded-[18px] py-3 px-4 shadow-sm border border-[#ececec]/60 flex flex-col items-center justify-center gap-1 w-full select-none group hover:shadow-md transition-all duration-300">
+        <div className="flex items-center justify-center gap-2">
+          {/* Pulsing indicator */}
+          <span className="relative flex h-2 w-2 flex-shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#107c41] opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#107c41]"></span>
+          </span>
+          <span className="text-[12px] font-extrabold text-[#111111] tracking-wide">Tez<span className="text-[#1769ff]">X</span> CRM Sync Active</span>
+        </div>
+        <span className="text-[10px] text-[#8f8f95] font-bold uppercase tracking-widest mt-0.5">Vercel Live Build v1.0.1</span>
       </div>
 
       {/* Subtle Copyright Line */}
