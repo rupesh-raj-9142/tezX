@@ -1,12 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function Settings() {
   const [activeTab, setActiveTab] = useState('profile');
 
+  const [integrations, setIntegrations] = useState(() => {
+    const saved = localStorage.getItem('tezx_integrations');
+    return saved ? JSON.parse(saved) : {
+      google: false,
+      slack: true,
+      zoom: false
+    };
+  });
+
+  const [connectingApp, setConnectingApp] = useState(null);
+  const [authStep, setAuthStep] = useState(0);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+  };
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => {
+        setToast(null);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  const saveIntegrations = (newVal) => {
+    setIntegrations(newVal);
+    localStorage.setItem('tezx_integrations', JSON.stringify(newVal));
+  };
+
+  const startConnection = (app) => {
+    const updated = { ...integrations, [app]: true };
+    saveIntegrations(updated);
+    showToast(`${app === 'google' ? 'Google Workspace' : app === 'slack' ? 'Slack' : 'Zoom'} connected successfully!`, 'success');
+  };
+
+  const startDisconnect = (app) => {
+    const updated = { ...integrations, [app]: false };
+    saveIntegrations(updated);
+    showToast(`${app === 'google' ? 'Google Workspace' : app === 'slack' ? 'Slack' : 'Zoom'} disconnected successfully.`, 'info');
+  };
+
+  const getAppName = (app) => {
+    if (app === 'google') return 'Google Workspace';
+    if (app === 'slack') return 'Slack';
+    if (app === 'zoom') return 'Zoom';
+    return '';
+  };
+
+  const getAppColor = (app) => {
+    if (app === 'google') return '#EA4335';
+    if (app === 'slack') return '#4A154B';
+    if (app === 'zoom') return '#0061FF';
+    return '#1769ff';
+  };
+
+  const getAppIconLetter = (app) => {
+    if (app === 'google') return 'G';
+    if (app === 'slack') return 'S';
+    if (app === 'zoom') return 'Z';
+    return '';
+  };
+
   const getTabClass = (tabName) => {
     return `flex items-center gap-md p-md rounded-xl font-bold transition-all ${activeTab === tabName
-        ? 'bg-primary-container text-on-primary-container'
-        : 'text-on-surface-variant hover:bg-surface-variant/50'
+      ? 'bg-primary-container text-on-primary-container'
+      : 'text-on-surface-variant hover:bg-surface-variant/50'
       }`;
   };
 
@@ -183,7 +247,12 @@ function Settings() {
             <>
               <h3 className="text-headline-md font-headline-md font-bold text-on-surface border-b border-outline-variant pb-sm">Integrations</h3>
               <div className="flex flex-col gap-md">
-                <div className="flex items-center justify-between p-md border border-outline-variant rounded-xl">
+
+                {/* Google Workspace */}
+                <div className={`flex items-center justify-between p-md border rounded-xl transition-all ${integrations.google
+                    ? 'border-primary bg-primary-container/10'
+                    : 'border-outline-variant'
+                  }`}>
                   <div className="flex items-center gap-md">
                     <div className="w-10 h-10 bg-[#EA4335] rounded-lg flex items-center justify-center text-white font-bold">G</div>
                     <div>
@@ -191,9 +260,28 @@ function Settings() {
                       <p className="text-body-sm text-on-surface-variant">Sync calendar and contacts</p>
                     </div>
                   </div>
-                  <button className="px-md py-sm border border-outline-variant rounded-xl font-bold text-on-surface hover:bg-surface-variant transition-colors">Connect</button>
+                  {integrations.google ? (
+                    <button
+                      onClick={() => startDisconnect('google')}
+                      className="px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-xl font-bold text-error hover:bg-error-container transition-colors"
+                    >
+                      Disconnect
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => startConnection('google')}
+                      className="px-md py-sm border border-outline-variant rounded-xl font-bold text-on-surface hover:bg-surface-variant transition-colors"
+                    >
+                      Connect
+                    </button>
+                  )}
                 </div>
-                <div className="flex items-center justify-between p-md border border-primary bg-primary-container/10 rounded-xl">
+
+                {/* Slack */}
+                <div className={`flex items-center justify-between p-md border rounded-xl transition-all ${integrations.slack
+                    ? 'border-primary bg-primary-container/10'
+                    : 'border-outline-variant'
+                  }`}>
                   <div className="flex items-center gap-md">
                     <div className="w-10 h-10 bg-[#4A154B] rounded-lg flex items-center justify-center text-white font-bold">S</div>
                     <div>
@@ -201,9 +289,28 @@ function Settings() {
                       <p className="text-body-sm text-on-surface-variant">Receive notifications in channels</p>
                     </div>
                   </div>
-                  <button className="px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-xl font-bold text-error hover:bg-error-container transition-colors">Disconnect</button>
+                  {integrations.slack ? (
+                    <button
+                      onClick={() => startDisconnect('slack')}
+                      className="px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-xl font-bold text-error hover:bg-error-container transition-colors"
+                    >
+                      Disconnect
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => startConnection('slack')}
+                      className="px-md py-sm border border-outline-variant rounded-xl font-bold text-on-surface hover:bg-surface-variant transition-colors"
+                    >
+                      Connect
+                    </button>
+                  )}
                 </div>
-                <div className="flex items-center justify-between p-md border border-outline-variant rounded-xl">
+
+                {/* Zoom */}
+                <div className={`flex items-center justify-between p-md border rounded-xl transition-all ${integrations.zoom
+                    ? 'border-primary bg-primary-container/10'
+                    : 'border-outline-variant'
+                  }`}>
                   <div className="flex items-center gap-md">
                     <div className="w-10 h-10 bg-[#0061FF] rounded-lg flex items-center justify-center text-white font-bold">Z</div>
                     <div>
@@ -211,14 +318,104 @@ function Settings() {
                       <p className="text-body-sm text-on-surface-variant">Auto-generate meeting links</p>
                     </div>
                   </div>
-                  <button className="px-md py-sm border border-outline-variant rounded-xl font-bold text-on-surface hover:bg-surface-variant transition-colors">Connect</button>
+                  {integrations.zoom ? (
+                    <button
+                      onClick={() => startDisconnect('zoom')}
+                      className="px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-xl font-bold text-error hover:bg-error-container transition-colors"
+                    >
+                      Disconnect
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => startConnection('zoom')}
+                      className="px-md py-sm border border-outline-variant rounded-xl font-bold text-on-surface hover:bg-surface-variant transition-colors"
+                    >
+                      Connect
+                    </button>
+                  )}
                 </div>
+
               </div>
             </>
           )}
 
         </div>
       </div>
+
+      {/* OAuth Connection Simulation Modal */}
+      {connectingApp && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-md">
+          <div className="bg-white rounded-3xl p-xl max-w-sm w-full border border-[#ececec] shadow-2xl flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
+
+            {/* App Logo */}
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-[28px] font-black shadow-lg mb-6 relative overflow-hidden"
+              style={{ backgroundColor: getAppColor(connectingApp) }}
+            >
+              <div className="absolute inset-0 bg-white/10 opacity-20 pointer-events-none" />
+              {getAppIconLetter(connectingApp)}
+            </div>
+
+            <h4 className="text-headline-sm font-bold text-black mb-xs">
+              Connecting {getAppName(connectingApp)}
+            </h4>
+            <p className="text-body-sm text-[#8f8f95] mb-6">
+              Please wait while TezX establishes a secure connection...
+            </p>
+
+            {/* Dynamic Stepper / Spinner */}
+            <div className="w-full space-y-4 mb-6 text-left bg-[#f3f3f5] p-md rounded-2xl border border-[#ececec]">
+              <div className="flex items-center gap-sm">
+                <span className={`material-symbols-outlined text-[18px] transition-colors ${authStep >= 1 ? 'text-[#107c41]' : 'text-[#8f8f95]'}`}>
+                  {authStep > 1 ? 'check_circle' : 'hourglass_empty'}
+                </span>
+                <span className={`text-[12px] font-bold ${authStep === 1 ? 'text-black' : 'text-[#8f8f95]'}`}>
+                  {authStep === 1 ? 'Contacting authentication gateway...' : 'API connection initiated'}
+                </span>
+              </div>
+              <div className="flex items-center gap-sm">
+                <span className={`material-symbols-outlined text-[18px] transition-colors ${authStep >= 2 ? 'text-[#107c41]' : 'text-[#8f8f95]'}`}>
+                  {authStep > 2 ? 'check_circle' : authStep === 2 ? 'hourglass_empty' : 'radio_button_unchecked'}
+                </span>
+                <span className={`text-[12px] font-bold ${authStep === 2 ? 'text-black' : 'text-[#8f8f95]'}`}>
+                  {authStep < 2 ? 'Pending authorization...' : authStep === 2 ? 'Requesting secure OAuth token...' : 'OAuth token verified'}
+                </span>
+              </div>
+              <div className="flex items-center gap-sm">
+                <span className={`material-symbols-outlined text-[18px] transition-colors ${authStep >= 3 ? 'text-[#107c41]' : 'text-[#8f8f95]'}`}>
+                  {authStep === 3 ? 'hourglass_empty' : 'radio_button_unchecked'}
+                </span>
+                <span className={`text-[12px] font-bold ${authStep === 3 ? 'text-black' : 'text-[#8f8f95]'}`}>
+                  {authStep < 3 ? 'Awaiting workspace sync...' : 'Finalizing secure environment handshake...'}
+                </span>
+              </div>
+            </div>
+
+            {/* Custom Progress bar */}
+            <div className="w-full h-1 bg-[#ececec] rounded-full overflow-hidden relative">
+              <div
+                className="h-full bg-[#1769ff] transition-all duration-1000"
+                style={{ width: `${(authStep / 3) * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Premium Integration Toast */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-[9999] bg-slate-900 text-white py-4 px-6 rounded-2xl shadow-2xl flex items-center gap-3 border border-white/10 animate-in slide-in-from-bottom duration-300">
+          <span className={`material-symbols-outlined text-[24px] ${toast.type === 'success' ? 'text-[#6ffbbe]' : 'text-[#1769ff]'
+            }`}>
+            {toast.type === 'success' ? 'verified' : 'info'}
+          </span>
+          <div className="text-left">
+            <h5 className="font-bold text-[14px] text-white">System Integration</h5>
+            <p className="text-[12px] text-white/80">{toast.message}</p>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

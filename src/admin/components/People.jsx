@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 
-function People({ people = [], setPeople, companies = [] }) {
+function People({ people = [], setPeople, companies = [], searchTerm: propSearchTerm, setSearchTerm: propSetSearchTerm }) {
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
-  const [searchTerm, setSearchTerm] = useState('');
+  const [localSearchTerm, setLocalSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  
+  const searchTerm = propSearchTerm !== undefined ? propSearchTerm : localSearchTerm;
+  const setSearchTerm = propSetSearchTerm !== undefined ? propSetSearchTerm : setLocalSearchTerm;
   
   // Modal States
   const [selectedPerson, setSelectedPerson] = useState(null);
@@ -23,10 +26,10 @@ function People({ people = [], setPeople, companies = [] }) {
   // Filter & Search Logic
   const filteredPeople = people.filter(person => {
     const matchesSearch = 
-      person.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      person.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      person.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      person.company.toLowerCase().includes(searchTerm.toLowerCase());
+      (person.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (person.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (person.role || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (person.company || '').toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'All' || person.status === statusFilter;
     
@@ -184,7 +187,7 @@ function People({ people = [], setPeople, companies = [] }) {
       {/* Filters bar */}
       <div className="bg-white border border-[#ececec]/60 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
         {/* Search Input */}
-        <div className="relative w-full md:w-80">
+        <div className="relative w-full md:flex-grow md:max-w-[480px] lg:max-w-[640px] transition-all duration-300">
           <span className="material-symbols-outlined absolute left-3 top-2.5 text-[20px] text-[#8f8f95]">search</span>
           <input
             type="text"

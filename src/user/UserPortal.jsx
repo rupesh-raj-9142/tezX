@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { sb } from '../utils/supabase';
+import { sb, supabase } from '../utils/supabase';
 
 function UserPortal() {
-  const [activeTab, setActiveTab] = useState('inquiry'); // 'inquiry' or 'workspace'
+  const [activeTab, setActiveTab] = useState('home'); // 'home', 'inquiry', or 'workspace'
   const [isLoggedOut, setIsLoggedOut] = useState(false);
 
   // Shared database states synced with localStorage
@@ -309,9 +309,9 @@ function UserPortal() {
   }
 
   return (
-    <div className="bg-[#f3f3f5] font-body-md text-[#111111] w-screen h-screen flex items-center justify-center overflow-hidden selection:bg-brand-blue/10">
-      {/* Centered Main Rounded Wrapper Container - Fullscreen on mobile, rounded on desktop */}
-      <div className="w-full h-full md:w-[98vw] md:h-[98vh] bg-white md:rounded-[32px] shadow-none md:shadow-[0_10px_40px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col border-none md:border md:border-[#ececec]">
+    <div className="bg-white font-body-md text-[#111111] w-screen h-screen flex flex-col overflow-hidden selection:bg-brand-blue/10">
+      {/* Centered Main Wrapper Container - Fullscreen view */}
+      <div className="w-full h-full bg-white overflow-hidden flex flex-col">
 
         {/* TopAppBar - Responsive Padding */}
         <header className="bg-white border-b border-[#ececec] h-20 flex-shrink-0 flex items-center">
@@ -330,6 +330,16 @@ function UserPortal() {
 
             {/* Premium Center Segmented Navigation Tabs - Responsive text hiding */}
             <div className="bg-[#f3f3f5] rounded-xl p-1 flex gap-1 border border-[#ececec] mx-2 sm:mx-4 select-none">
+              <button
+                onClick={() => setActiveTab('home')}
+                className={`px-3 sm:px-5 py-2 rounded-lg text-[13px] sm:text-[14px] font-extrabold transition-all flex items-center gap-1.5 ${activeTab === 'home'
+                  ? 'bg-white shadow-sm text-[#1769ff]'
+                  : 'text-[#8f8f95] hover:bg-black/5 hover:text-black'
+                  }`}
+              >
+                <span className="material-symbols-outlined text-[18px]">home</span>
+                <span className="hidden sm:inline">Home Desk</span>
+              </button>
               <button
                 onClick={() => setActiveTab('inquiry')}
                 className={`px-3 sm:px-5 py-2 rounded-lg text-[13px] sm:text-[14px] font-extrabold transition-all flex items-center gap-1.5 ${activeTab === 'inquiry'
@@ -367,7 +377,7 @@ function UserPortal() {
               </a>
 
               <button
-                onClick={() => setIsLoggedOut(true)}
+                onClick={() => supabase.auth.signOut()}
                 className="flex items-center gap-1.5 py-2 px-3 sm:px-4 rounded-full font-semibold text-[13px] sm:text-[14px] bg-[#ffebee] text-[#ba1a1a] hover:bg-[#ffcdd2] cursor-pointer transition-all duration-200 border-none"
                 title="Logout"
               >
@@ -380,6 +390,194 @@ function UserPortal() {
 
         {/* Scrollable Container - Responsive Padding */}
         <div className="flex-grow overflow-y-auto p-4 md:p-10 bg-white">
+
+          {/* TAB 0: HOME DESK DASHBOARD */}
+          {activeTab === 'home' && (
+            <div className="animate-in fade-in duration-300 space-y-8 text-left max-w-screen-xl mx-auto mb-10">
+
+              {/* Premium Welcome Banner */}
+              <div className="bg-gradient-to-r from-[#1769ff] to-[#3525cd] text-white p-8 rounded-[32px] shadow-lg relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6 select-none">
+                <div className="absolute inset-0 bg-white/5 opacity-40 blur-xs pointer-events-none" />
+                <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/5 rounded-full blur-2xl" />
+                <div className="relative z-10">
+                  <span className="text-[10px] font-black tracking-widest bg-white/20 px-3 py-1 rounded-full text-white uppercase">TezX Hub Active</span>
+                  <h1 className="text-[32px] sm:text-[38px] font-black tracking-tight mt-3 leading-none text-white">Welcome to your Portal</h1>
+                  <p className="text-white/80 text-[13px] sm:text-[14px] font-medium mt-2">Submit briefs, monitor deliverable project scopes, and manage pipelines in real-time.</p>
+                </div>
+                <div className="relative z-10 flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15">
+                  <div className="text-center">
+                    <span className="text-[10px] font-bold text-white/70 block uppercase">Inquiries</span>
+                    <span className="text-[18px] font-black text-white">{leads.length}</span>
+                  </div>
+                  <div className="text-center px-4 border-x border-white/10">
+                    <span className="text-[10px] font-bold text-white/70 block uppercase">Deployments</span>
+                    <span className="text-[18px] font-black text-white">{projects.length}</span>
+                  </div>
+                  <div className="text-center">
+                    <span className="text-[10px] font-bold text-white/70 block uppercase">Roster</span>
+                    <span className="text-[18px] font-black text-white">{people.length}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bento Card Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Inquiry card */}
+                <div className="bg-white border border-[#ececec] rounded-[28px] p-6 shadow-sm hover:shadow-md hover:border-[#1769ff]/30 transition-all flex flex-col justify-between group h-[220px]">
+                  <div className="flex justify-between items-start">
+                    <div className="w-12 h-12 rounded-2xl bg-[#1769ff]/10 text-[#1769ff] flex items-center justify-center group-hover:scale-105 transition-transform flex-shrink-0">
+                      <span className="material-symbols-outlined text-[24px]">rate_review</span>
+                    </div>
+                    <span className="text-[10px] font-black text-[#8f8f95] uppercase tracking-wider">inquiry desk</span>
+                  </div>
+                  <div>
+                    <h4 className="text-[16px] sm:text-[18px] font-black text-black leading-tight">Submit Inquiry Form</h4>
+                    <p className="text-[12px] text-[#8f8f95] mt-1 leading-snug">Launch service briefs directly into active CRM pipelines.</p>
+                  </div>
+                  <button
+                    onClick={() => setActiveTab('inquiry')}
+                    className="w-full py-2.5 bg-[#f3f3f5] hover:bg-[#1769ff] hover:text-white text-black hover:text-white font-extrabold text-[12px] rounded-xl transition-all cursor-pointer border-none"
+                  >
+                    Open Inquiry Desk
+                  </button>
+                </div>
+
+                {/* Workspace card */}
+                <div className="bg-white border border-[#ececec] rounded-[28px] p-6 shadow-sm hover:shadow-md hover:border-[#1769ff]/30 transition-all flex flex-col justify-between group h-[220px]">
+                  <div className="flex justify-between items-start">
+                    <div className="w-12 h-12 rounded-2xl bg-secondary/10 text-[#3323cc] flex items-center justify-center group-hover:scale-105 transition-transform flex-shrink-0">
+                      <span className="material-symbols-outlined text-[24px]">business_center</span>
+                    </div>
+                    <span className="text-[10px] font-black text-[#8f8f95] uppercase tracking-wider">workspace</span>
+                  </div>
+                  <div>
+                    <h4 className="text-[16px] sm:text-[18px] font-black text-black leading-tight">Client Workspace</h4>
+                    <p className="text-[12px] text-[#8f8f95] mt-1 leading-snug">Monitor deliverable milestones and track project scopes.</p>
+                  </div>
+                  <button
+                    onClick={() => setActiveTab('workspace')}
+                    className="w-full py-2.5 bg-[#f3f3f5] hover:bg-[#1769ff] hover:text-white text-black hover:text-white font-extrabold text-[12px] rounded-xl transition-all cursor-pointer border-none"
+                  >
+                    Enter Client Workspace
+                  </button>
+                </div>
+
+                {/* Admin card */}
+                <div className="bg-white border border-[#ececec] rounded-[28px] p-6 shadow-sm hover:shadow-md hover:border-[#1769ff]/30 transition-all flex flex-col justify-between group h-[220px]">
+                  <div className="flex justify-between items-start">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center group-hover:scale-105 transition-transform flex-shrink-0">
+                      <span className="material-symbols-outlined text-[24px]">admin_panel_settings</span>
+                    </div>
+                    <span className="text-[10px] font-black text-[#8f8f95] uppercase tracking-wider">admin desk</span>
+                  </div>
+                  <div>
+                    <h4 className="text-[16px] sm:text-[18px] font-black text-black leading-tight">Admin Control Panel</h4>
+                    <p className="text-[12px] text-[#8f8f95] mt-1 leading-snug">Manage pipeline columns, staff contacts, and CRM settings.</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      window.history.pushState({}, '', '#/admin');
+                      window.dispatchEvent(new Event('popstate'));
+                    }}
+                    className="w-full py-2.5 bg-black text-white hover:bg-black/90 font-extrabold text-[12px] rounded-xl transition-all cursor-pointer border-none"
+                  >
+                    Launch Admin Portal
+                  </button>
+                </div>
+              </div>
+
+              {/* Real-time Activity Split View */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-6">
+                {/* Active Deliverables preview (left) */}
+                <div className="lg:col-span-6 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-[15px] sm:text-[16px] font-extrabold text-[#111111] flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[#1769ff]">running_with_errors</span>
+                      Active Deployments
+                    </h3>
+                    <button
+                      onClick={() => setActiveTab('workspace')}
+                      className="text-[11px] font-bold text-[#1769ff] hover:underline bg-transparent border-none cursor-pointer"
+                    >
+                      View all ({projects.length})
+                    </button>
+                  </div>
+
+                  <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2">
+                    {projects.length > 0 ? (
+                      projects.slice(0, 2).map((project) => {
+                        const pct = getProgressPercentage(project.status);
+                        return (
+                          <div key={project.id} className="bg-white border border-[#ececec] rounded-2xl p-4 shadow-sm flex flex-col justify-between gap-3">
+                            <div className="flex justify-between items-center">
+                              <span className="px-2 py-0.5 bg-[#f3f3f5] rounded text-[10px] font-bold text-black truncate max-w-[120px]">
+                                🏢 {project.company}
+                              </span>
+                              <span className={`px-2 py-0.5 rounded-full text-[9px] font-black tracking-wide uppercase ${project.status === 'Completed' ? 'bg-[#e2f9ee] text-[#107c41]' :
+                                  project.status === 'In Progress' ? 'bg-[#1769ff]/10 text-[#1769ff]' : 'bg-[#ffb11a]/15 text-[#b27200]'
+                                }`}>
+                                {project.status}
+                              </span>
+                            </div>
+                            <div>
+                              <h4 className="text-[13px] font-extrabold text-black">{project.name}</h4>
+                              <div className="w-full h-1.5 bg-[#f3f3f5] rounded-full overflow-hidden mt-2">
+                                <div
+                                  className={`h-full rounded-full ${project.status === 'Completed' ? 'bg-[#107c41]' : project.status === 'In Progress' ? 'bg-[#1769ff]' : 'bg-[#ffb11a]'}`}
+                                  style={{ width: `${pct}%` }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="bg-white border border-dashed border-[#ececec] rounded-2xl p-8 text-center text-[#8f8f95] text-[12px] bg-slate-50/20">
+                        No active deliverable deployments.
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Recent Inquiries preview (right) */}
+                <div className="lg:col-span-6 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-[15px] sm:text-[16px] font-extrabold text-[#111111] flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[#1769ff]">history</span>
+                      Recent Inquiries
+                    </h3>
+                    <button
+                      onClick={() => setActiveTab('inquiry')}
+                      className="text-[11px] font-bold text-[#1769ff] hover:underline bg-transparent border-none cursor-pointer"
+                    >
+                      Submit new inquiry
+                    </button>
+                  </div>
+
+                  <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2">
+                    {leads.length > 0 ? (
+                      leads.slice(0, 2).map((lead) => (
+                        <div key={lead.id} className="bg-white border border-[#ececec] rounded-2xl p-4 shadow-sm flex items-center justify-between gap-3">
+                          <div className="min-w-0">
+                            <h4 className="text-[13px] font-extrabold text-black truncate">{lead.company}</h4>
+                            <p className="text-[11px] text-[#8f8f95] font-semibold truncate mt-0.5">{lead.project}</p>
+                          </div>
+                          <span className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] whitespace-nowrap ${lead.stage === 'success' ? 'bg-[#e2f9ee] text-[#107c41]' : 'bg-[#f3f3f5] text-[#444]'
+                            }`}>
+                            {getStageLabel(lead.stage)}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="bg-white border border-dashed border-[#ececec] rounded-2xl p-8 text-center text-[#8f8f95] text-[12px] bg-slate-50/20">
+                        No inquiries submitted yet.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* TAB 1: INQUIRY DESK VIEW */}
           {activeTab === 'inquiry' && (

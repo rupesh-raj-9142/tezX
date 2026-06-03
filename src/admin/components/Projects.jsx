@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
-function Projects({ projects = [], setProjects, companies = [], people = [], leadContext, clearLeadContext, onUpdateLead }) {
+function Projects({ projects = [], setProjects, companies = [], people = [], leadContext, clearLeadContext, onUpdateLead, searchTerm: propSearchTerm, setSearchTerm: propSetSearchTerm }) {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
-  const [searchTerm, setSearchTerm] = useState('');
+  const [localSearchTerm, setLocalSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  
+  const searchTerm = propSearchTerm !== undefined ? propSearchTerm : localSearchTerm;
+  const setSearchTerm = propSetSearchTerm !== undefined ? propSetSearchTerm : setLocalSearchTerm;
   
   // Modal States
   const [selectedProject, setSelectedProject] = useState(null);
@@ -52,10 +55,10 @@ function Projects({ projects = [], setProjects, companies = [], people = [], lea
   // Filter & Search Logic
   const filteredProjects = projects.filter(project => {
     const matchesSearch = 
-      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.owner.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (project.description && project.description.toLowerCase().includes(searchTerm.toLowerCase()));
+      (project.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (project.company || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (project.owner || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (project.description || '').toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'All' || project.status === statusFilter;
     
@@ -241,7 +244,7 @@ function Projects({ projects = [], setProjects, companies = [], people = [], lea
       {/* Filters bar */}
       <div className="bg-white border border-[#ececec]/60 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
         {/* Search Input */}
-        <div className="relative w-full md:w-80">
+        <div className="relative w-full md:flex-grow md:max-w-[480px] lg:max-w-[640px] transition-all duration-300">
           <span className="material-symbols-outlined absolute left-3 top-2.5 text-[20px] text-[#8f8f95]">search</span>
           <input
             type="text"

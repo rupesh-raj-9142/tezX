@@ -60,7 +60,7 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
     setSelectedLead(updatedLead);
     setSuccessAnimation('schedule');
     setInlineNotes('');
-    
+
     setTimeout(() => {
       setSuccessAnimation(null);
       setActiveInlinePanel(null);
@@ -130,12 +130,12 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
 
     try {
       await sb.projects.insert(newProject);
-      
+
       let projectsBackup = [];
       try {
         const saved = localStorage.getItem('tezx_projects');
         if (saved && saved !== 'undefined') projectsBackup = JSON.parse(saved);
-      } catch (err) {}
+      } catch (err) { }
       projectsBackup.unshift(newProject);
       localStorage.setItem('tezx_projects', JSON.stringify(projectsBackup));
     } catch (err) {
@@ -178,7 +178,7 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
         ) {
           console.log('[TezX Debug] Syncing opened modal with latest leads prop:', currentLead);
           setSelectedLead(currentLead);
-          
+
           let normStage = currentLead.stage;
           if (currentLead.stage === 'review') normStage = 'under-review';
           if (currentLead.stage === 'meeting') normStage = 'meeting-scheduled';
@@ -213,13 +213,13 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
   // Open Quick View Modal
   const handleOpenQuickView = (lead) => {
     setSelectedLead(lead);
-    
+
     // Normalize stage names in case they are saved as simple forms 'review', 'meeting', 'won'
     let normStage = lead.stage;
     if (lead.stage === 'review') normStage = 'under-review';
     if (lead.stage === 'meeting') normStage = 'meeting-scheduled';
     if (lead.stage === 'won') normStage = 'success';
-    
+
     setEditForm({
       company: lead.company || '',
       project: lead.project || '',
@@ -265,7 +265,7 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
   // Handle Quick Stage Shift (directly inside modal or quick actions list)
   const handleStageShift = (newStage) => {
     console.log('[TezX Debug] handleStageShift clicked with stage:', newStage);
-    
+
     // Normalize in case simple stages are passed
     let normStage = newStage;
     if (newStage === 'review') normStage = 'under-review';
@@ -280,17 +280,17 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
       stage: normStage,
       urgent: editForm.urgent,
       // If moving to success and amount is empty, pre-fill some value or leave empty
-      amount: normStage === 'success' 
-        ? (String(editForm.amount || '').trim() ? (String(editForm.amount || '').startsWith('$') ? editForm.amount : `$${editForm.amount}`) : (selectedLead.amount || '$10,000')) 
+      amount: normStage === 'success'
+        ? (String(editForm.amount || '').trim() ? (String(editForm.amount || '').startsWith('$') ? editForm.amount : `$${editForm.amount}`) : (selectedLead.amount || '$10,000'))
         : (String(editForm.amount || '').trim() ? (String(editForm.amount || '').startsWith('$') ? editForm.amount : `$${editForm.amount}`) : selectedLead.amount),
       contactName: (editForm.contactName || '').trim(),
       contactEmail: (editForm.contactEmail || '').trim(),
       contactPhone: (editForm.contactPhone || '').trim(),
       message: (editForm.message || '').trim(),
     };
-    
+
     console.log('[TezX Debug] handleStageShift created updatedLead:', updatedLead);
-    
+
     // Update active modal form as well
     setEditForm(prev => {
       const nextForm = {
@@ -360,12 +360,11 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
     const isSuccess = lead.stage === 'success';
 
     return (
-      <div 
+      <div
         key={lead.id}
         onClick={() => handleOpenQuickView(lead)}
-        className={`bg-surface-container-lowest border rounded-2xl p-lg shadow-sm hover:shadow-md hover:border-primary/45 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer ${
-          isSuccess ? 'opacity-85 border-dashed border-outline-variant/60' : 'border-outline-variant/40'
-        }`}
+        className={`bg-surface-container-lowest border rounded-2xl p-lg shadow-sm hover:shadow-md hover:border-primary/45 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer ${isSuccess ? 'opacity-85 border-dashed border-outline-variant/60' : 'border-outline-variant/40'
+          }`}
       >
         <div className="flex justify-between items-start mb-md">
           <div className="flex flex-wrap gap-xs">
@@ -392,10 +391,10 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
           {/* Avatar representation */}
           <div className="flex -space-x-2">
             {lead.avatarType === 'image' || (typeof lead.avatar === 'string' && lead.avatar.startsWith('http')) ? (
-              <img 
-                alt="User" 
-                className="w-8 h-8 rounded-full border-2 border-surface-container-lowest bg-primary-fixed text-[10px] flex items-center justify-center object-cover" 
-                src={lead.avatar} 
+              <img
+                alt="User"
+                className="w-8 h-8 rounded-full border-2 border-surface-container-lowest bg-primary-fixed text-[10px] flex items-center justify-center object-cover"
+                src={lead.avatar}
               />
             ) : (
               <div className="w-8 h-8 rounded-full border-2 border-surface-container-lowest bg-surface-variant text-[10px] flex items-center justify-center font-bold text-on-surface-variant">
@@ -416,7 +415,7 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
               <span className="text-[12px] text-tertiary font-bold">{lead.amount || '$10,000'}</span>
             </div>
           ) : (
-            <button 
+            <button
               onClick={(e) => {
                 e.stopPropagation();
                 handleOpenQuickView(lead);
@@ -442,28 +441,26 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
         </div>
         <div className="flex items-center gap-sm">
           <div className="bg-surface-container-highest rounded-lg p-xs flex gap-xs">
-            <button 
+            <button
               onClick={() => setViewMode('kanban')}
-              className={`px-md py-sm rounded-lg text-label-md font-bold transition-all duration-200 ${
-                viewMode === 'kanban' 
-                  ? 'bg-surface-container-lowest shadow-sm text-primary' 
+              className={`px-md py-sm rounded-lg text-label-md font-bold transition-all duration-200 ${viewMode === 'kanban'
+                  ? 'bg-surface-container-lowest shadow-sm text-primary'
                   : 'text-on-surface-variant hover:bg-surface-variant/30'
-              }`}
+                }`}
             >
               Kanban
             </button>
-            <button 
+            <button
               onClick={() => setViewMode('list')}
-              className={`px-md py-sm rounded-lg text-label-md font-bold transition-all duration-200 ${
-                viewMode === 'list' 
-                  ? 'bg-surface-container-lowest shadow-sm text-primary' 
+              className={`px-md py-sm rounded-lg text-label-md font-bold transition-all duration-200 ${viewMode === 'list'
+                  ? 'bg-surface-container-lowest shadow-sm text-primary'
                   : 'text-on-surface-variant hover:bg-surface-variant/30'
-              }`}
+                }`}
             >
               List View
             </button>
           </div>
-          <button 
+          <button
             onClick={onOpenNewLead}
             className="bg-primary text-on-primary px-md py-[10px] rounded-lg text-label-md flex items-center gap-xs font-bold hover:brightness-110 active:scale-95 transition-all shadow-sm cursor-pointer"
           >
@@ -596,8 +593,8 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
                 {leads.map((lead) => {
                   const isSuccess = lead.stage === 'success';
                   return (
-                    <tr 
-                      key={lead.id} 
+                    <tr
+                      key={lead.id}
                       className="hover:bg-surface-container-low/20 transition-colors cursor-pointer group"
                       onClick={() => handleOpenQuickView(lead)}
                     >
@@ -605,10 +602,10 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
                       <td className="px-lg py-md">
                         <div className="flex items-center gap-md">
                           {lead.avatarType === 'image' || (typeof lead.avatar === 'string' && lead.avatar.startsWith('http')) ? (
-                            <img 
-                              alt={lead.company} 
-                              className="w-10 h-10 rounded-full object-cover border border-outline-variant/20 shadow-sm" 
-                              src={lead.avatar} 
+                            <img
+                              alt={lead.company}
+                              className="w-10 h-10 rounded-full object-cover border border-outline-variant/20 shadow-sm"
+                              src={lead.avatar}
                             />
                           ) : (
                             <div className="w-10 h-10 rounded-full bg-surface-variant text-body-sm flex items-center justify-center font-bold text-on-surface-variant border border-outline-variant/20 shadow-sm">
@@ -675,7 +672,7 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
                           >
                             <span className="material-symbols-outlined text-[18px]">edit</span>
                           </button>
-                          
+
                           {/* Fast stage transition */}
                           <div className="relative inline-block text-left group">
                             <button
@@ -701,14 +698,13 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
                                     };
                                     onUpdateLead(updatedLead);
                                   }}
-                                  className={`w-full px-md py-[6px] text-[12px] font-bold text-left hover:bg-surface-variant/40 transition-colors ${
-                                    lead.stage === step.id || 
-                                    (step.id === 'under-review' && lead.stage === 'review') ||
-                                    (step.id === 'meeting-scheduled' && lead.stage === 'meeting') ||
-                                    (step.id === 'success' && lead.stage === 'won')
-                                      ? 'text-primary bg-primary/5' 
+                                  className={`w-full px-md py-[6px] text-[12px] font-bold text-left hover:bg-surface-variant/40 transition-colors ${lead.stage === step.id ||
+                                      (step.id === 'under-review' && lead.stage === 'review') ||
+                                      (step.id === 'meeting-scheduled' && lead.stage === 'meeting') ||
+                                      (step.id === 'success' && lead.stage === 'won')
+                                      ? 'text-primary bg-primary/5'
                                       : 'text-on-surface-variant'
-                                  }`}
+                                    }`}
                                 >
                                   {step.label}
                                 </button>
@@ -749,11 +745,11 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
       {selectedLead && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-md">
           {/* Backdrop */}
-          <div 
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" 
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
             onClick={() => setSelectedLead(null)}
           ></div>
-          
+
           {/* Modal Container */}
           <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl w-full max-w-lg shadow-2xl relative z-10 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
             {/* Modal Header */}
@@ -762,7 +758,7 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
                 <h3 className="text-headline-md font-bold text-on-surface">Lead Opportunity Profile</h3>
                 <p className="text-body-sm text-on-surface-variant">Inspect, move, or modify opportunity details</p>
               </div>
-              <button 
+              <button
                 onClick={() => setSelectedLead(null)}
                 className="text-on-surface-variant hover:text-error transition-colors p-xs rounded-full hover:bg-surface-variant/40"
               >
@@ -981,8 +977,8 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
                   <div className="flex flex-col gap-xs">
                     <label className="text-label-sm font-bold text-on-surface-variant">CLIENT NAME</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={editForm.company}
                       onChange={(e) => setEditForm({ ...editForm, company: e.target.value })}
                       className="w-full h-11 px-md bg-surface border border-outline-variant rounded-xl outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-body-sm text-body-sm"
@@ -991,8 +987,8 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
 
                   <div className="flex flex-col gap-xs">
                     <label className="text-label-sm font-bold text-on-surface-variant">PROJECT/DEAL</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={editForm.project}
                       onChange={(e) => setEditForm({ ...editForm, project: e.target.value })}
                       className="w-full h-11 px-md bg-surface border border-outline-variant rounded-xl outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-body-sm text-body-sm"
@@ -1005,7 +1001,7 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
                   {/* Category selector */}
                   <div className="flex flex-col gap-xs">
                     <label className="text-label-sm font-bold text-on-surface-variant">CATEGORY</label>
-                    <select 
+                    <select
                       value={editForm.category}
                       onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
                       className="w-full h-11 px-md bg-surface border border-outline-variant rounded-xl outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-body-sm text-body-sm"
@@ -1021,8 +1017,8 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
                   {/* Deal Value Amount */}
                   <div className="flex flex-col gap-xs">
                     <label className="text-label-sm font-bold text-on-surface-variant">DEAL AMOUNT ($)</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={editForm.amount}
                       onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })}
                       placeholder="e.g. 15,000"
@@ -1034,12 +1030,12 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
                 {/* Contact Details & Inquiry Message */}
                 <div className="border-t border-outline-variant/30 pt-md space-y-md">
                   <h4 className="text-label-sm font-extrabold text-primary uppercase tracking-wider">Inquirer & Contact Details</h4>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
                     <div className="flex flex-col gap-xs">
                       <label className="text-label-sm font-bold text-on-surface-variant">CONTACT NAME</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={editForm.contactName}
                         onChange={(e) => setEditForm({ ...editForm, contactName: e.target.value })}
                         placeholder="e.g. Marcus Thorne"
@@ -1049,8 +1045,8 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
 
                     <div className="flex flex-col gap-xs">
                       <label className="text-label-sm font-bold text-on-surface-variant">EMAIL</label>
-                      <input 
-                        type="email" 
+                      <input
+                        type="email"
                         value={editForm.contactEmail}
                         onChange={(e) => setEditForm({ ...editForm, contactEmail: e.target.value })}
                         placeholder="e.g. name@company.com"
@@ -1060,8 +1056,8 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
 
                     <div className="flex flex-col gap-xs">
                       <label className="text-label-sm font-bold text-on-surface-variant">PHONE</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={editForm.contactPhone}
                         onChange={(e) => setEditForm({ ...editForm, contactPhone: e.target.value })}
                         placeholder="e.g. +1 (555) 0123"
@@ -1072,7 +1068,7 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
 
                   <div className="flex flex-col gap-xs">
                     <label className="text-label-sm font-bold text-on-surface-variant">INQUIRY MESSAGE / PROJECT DETAILS</label>
-                    <textarea 
+                    <textarea
                       value={editForm.message}
                       onChange={(e) => setEditForm({ ...editForm, message: e.target.value })}
                       placeholder="No inquiry details provided."
@@ -1085,8 +1081,8 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
                 {/* Urgent Toggle */}
                 <div className="flex items-center justify-between p-sm">
                   <div className="flex items-center gap-sm">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       id="edit-urgent"
                       checked={editForm.urgent}
                       onChange={(e) => setEditForm({ ...editForm, urgent: e.target.checked })}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 function Scheduler({ leads = [], onUpdateLead, leadContext, clearLeadContext, hostContext, clearHostContext, meetings = [], setMeetings }) {
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
-  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [selectedSlots, setSelectedSlots] = useState([]);
   
   // Form State for Booking
   const [bookingForm, setBookingForm] = useState({
@@ -49,14 +49,22 @@ function Scheduler({ leads = [], onUpdateLead, leadContext, clearLeadContext, ho
     });
 
     if (leadContext || hostContext) {
-      setSelectedSlot(availableSlots[2]); // pre-select slot 3
+      setSelectedSlots([availableSlots[2]]); // pre-select slot 3
     } else {
-      setSelectedSlot(null);
+      setSelectedSlots([]);
     }
-  }, [leadContext, hostContext, leads]);
+  }, [leadContext, hostContext]);
 
   const handleSelectSlot = (slot) => {
-    setSelectedSlot(slot);
+    setSelectedSlots(prev => {
+      const isSelected = prev.some(s => s.id === slot.id);
+      if (isSelected) {
+        return prev.filter(s => s.id !== slot.id);
+      } else {
+        return [...prev, slot];
+      }
+    });
+
     if (!bookingForm.leadId && leads.length > 0) {
       setBookingForm(prev => ({
         ...prev,
@@ -67,39 +75,40 @@ function Scheduler({ leads = [], onUpdateLead, leadContext, clearLeadContext, ho
 
   const handleBookMeeting = (e) => {
     e.preventDefault();
-    if (!selectedSlot) return;
+    if (selectedSlots.length === 0) return;
 
     const assocLead = leads.find(l => l.id === bookingForm.leadId);
     const leadName = assocLead ? assocLead.company : 'Custom Client';
     const contactName = assocLead ? (assocLead.contactName || assocLead.contact_name) : 'Representative';
 
-    const newMeeting = {
-      id: `meet-${Date.now()}`,
+    const newMeetings = selectedSlots.map((slot, index) => ({
+      id: `meet-${Date.now()}-${index}`,
       title: bookingForm.title.trim() || `Sync Call - ${leadName}`,
       leadCompany: leadName,
       leadId: bookingForm.leadId,
       contactName: contactName || 'N/A',
-      timeSlot: selectedSlot.time,
+      timeSlot: slot.time,
       date: selectedDate,
       description: bookingForm.description.trim() || 'No description provided.',
       hostName: hostContext ? hostContext.name : '',
       hostAvatar: hostContext ? hostContext.avatar : '',
-    };
+    }));
 
-    // Update shared meetings state
-    setMeetings(prev => [newMeeting, ...prev]);
+    // Update shared meetings state with new meetings in batch
+    setMeetings(prev => [...newMeetings, ...prev]);
 
     // Automatically advance lead's pipeline stage to meeting-scheduled
     if (assocLead && onUpdateLead) {
+      const timesString = selectedSlots.map(s => s.time.split(' ')[0]).join(', ');
       onUpdateLead({
         ...assocLead,
         stage: 'meeting-scheduled',
-        time: `Today @ ${selectedSlot.time.split(' ')[0]} ${selectedSlot.time.split(' ').pop()}`
+        time: `Today @ ${timesString}`
       });
     }
 
-    // Reset slot selection and clear contexts if active
-    setSelectedSlot(null);
+    // Reset slots selection and clear contexts if active
+    setSelectedSlots([]);
     if (leadContext) {
       clearLeadContext();
     }
@@ -261,10 +270,10 @@ function Scheduler({ leads = [], onUpdateLead, leadContext, clearLeadContext, ho
             </div>
 
             <div>
-              <label className="text-[11px] font-bold text-[#8f8f95] uppercase tracking-wider block mb-2">2. Choose Available Time Slot</label>
+              <label className="text-[11px] font-bold text-[#8f8f95] uppercase tracking-wider block mb-2">2. Choose Available Time Slot (Select one or more)</label>
               <div className="space-y-3">
                 {availableSlots.map((slot) => {
-                  const isSelected = selectedSlot?.id === slot.id;
+                  const isSelected = selectedSlots.some(s => s.id === slot.id);
                   return (
                     <button
                       key={slot.id}
@@ -287,26 +296,39 @@ function Scheduler({ leads = [], onUpdateLead, leadContext, clearLeadContext, ho
                           <p className="text-[11px] text-[#8f8f95]">{slot.label}</p>
                         </div>
                       </div>
-                      <span className="material-symbols-outlined text-[#8f8f95] opacity-0 group-hover:opacity-100 transition-opacity text-[18px]">
-                        arrow_forward
-                      </span>
+                      {isSelected ? (
+                        <span className="w-5 h-5 rounded-full bg-[#1769ff] text-white flex items-center justify-center text-[10px] font-black">
+                          ✓
+                        </span>
+                      ) : (
+                        <span className="material-symbols-outlined text-[#8f8f95] opacity-0 group-hover:opacity-100 transition-opacity text-[18px]">
+                          add
+                        </span>
+                      )}
                     </button>
                   );
                 })}
               </div>
             </div>
           </div>
-
+ 
           {/* Right Pane: Booking Details Form */}
           <div className="lg:col-span-5 p-6 bg-white flex flex-col justify-between">
-            {selectedSlot ? (
+            {selectedSlots.length > 0 ? (
               <form onSubmit={handleBookMeeting} className="flex flex-col h-full justify-between gap-6">
                 <div className="space-y-4">
-                  <div className="border-b border-[#ececec] pb-2">
+                  <div className="border-b border-[#ececec] pb-2 text-left">
                     <h4 className="font-extrabold text-[15px] text-black">Complete Booking Details</h4>
-                    <p className="text-[12px] text-[#8f8f95]">Selected: {selectedDate} @ {selectedSlot.time}</p>
+                    <p className="text-[12px] text-[#8f8f95] mb-1.5">Selected Date: <span className="font-bold text-black">{selectedDate}</span></p>
+                    <div className="flex flex-wrap gap-xs">
+                      {selectedSlots.map(slot => (
+                        <span key={slot.id} className="bg-[#1769ff]/10 text-[#1769ff] text-[10px] font-black px-2.5 py-0.5 rounded-full">
+                          {slot.time.split(' ')[0]} {slot.time.split(' ').pop()}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-
+ 
                   <div className="flex flex-col gap-1">
                     <label className="text-[11px] font-bold text-[#8f8f95] uppercase">Meeting Subject *</label>
                     <input
@@ -318,7 +340,7 @@ function Scheduler({ leads = [], onUpdateLead, leadContext, clearLeadContext, ho
                       className="w-full h-10 px-3 bg-white border border-[#ececec] rounded-xl outline-none focus:ring-2 focus:ring-[#1769ff]/20 focus:border-[#1769ff] transition-all text-[13px]"
                     />
                   </div>
-
+ 
                   <div className="flex flex-col gap-1">
                     <label className="text-[11px] font-bold text-[#8f8f95] uppercase">Client Lead Association *</label>
                     {leadContext ? (
@@ -347,7 +369,7 @@ function Scheduler({ leads = [], onUpdateLead, leadContext, clearLeadContext, ho
                       />
                     )}
                   </div>
-
+ 
                   <div className="flex flex-col gap-1">
                     <label className="text-[11px] font-bold text-[#8f8f95] uppercase">Agenda Description</label>
                     <textarea
@@ -359,29 +381,29 @@ function Scheduler({ leads = [], onUpdateLead, leadContext, clearLeadContext, ho
                     />
                   </div>
                 </div>
-
+ 
                 <div className="flex justify-end gap-2 pt-4 border-t border-[#ececec]">
                   <button
                     type="button"
-                    onClick={() => setSelectedSlot(null)}
-                    className="px-4 py-2 hover:bg-[#f5f5f6] text-[#8f8f95] font-bold text-[13px] rounded-xl transition-all"
+                    onClick={() => setSelectedSlots([])}
+                    className="px-4 py-2 hover:bg-[#f5f5f6] text-[#8f8f95] font-bold text-[13px] rounded-xl transition-all cursor-pointer border-none bg-transparent"
                   >
                     Reset
                   </button>
                   <button
                     type="submit"
                     disabled={leads.length === 0 && !leadContext}
-                    className="px-5 py-2 bg-[#1769ff] hover:bg-[#0054e6] disabled:bg-[#8f8f95] text-white font-bold text-[13px] rounded-xl transition-all shadow-md shadow-[#1769ff]/10"
+                    className="px-5 py-2 bg-[#1769ff] hover:bg-[#0054e6] disabled:bg-[#8f8f95] text-white font-bold text-[13px] rounded-xl transition-all shadow-md shadow-[#1769ff]/10 cursor-pointer border-none"
                   >
-                    Confirm Booking
+                    Confirm Booking ({selectedSlots.length})
                   </button>
                 </div>
               </form>
             ) : (
-              <div className="flex flex-col items-center justify-center text-center py-12 px-6 h-full border border-dashed border-[#ececec] rounded-3xl bg-[#f7f7f8]/10">
+              <div className="flex flex-col items-center justify-center text-center py-12 px-6 h-full border border-dashed border-[#ececec] rounded-3xl bg-[#f7f7f8]/10 select-none">
                 <span className="text-3xl mb-2">📅</span>
-                <h5 className="font-extrabold text-[#111111] text-[14px]">Configure New Meeting</h5>
-                <p className="text-[12px] text-[#8f8f95] max-w-[240px] mx-auto mt-1">Select a calendar date and an open slot on the left to activate the booking desk.</p>
+                <h5 className="font-extrabold text-[#111111] text-[14px]">Configure New Meetings</h5>
+                <p className="text-[12px] text-[#8f8f95] max-w-[240px] mx-auto mt-1">Select a calendar date and one or more slots on the left to activate batch scheduling.</p>
               </div>
             )}
           </div>

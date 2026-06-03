@@ -8,7 +8,7 @@ import Support from './components/Support';
 import People from './components/People';
 import Companies from './components/Companies';
 import Projects from './components/Projects';
-import { sb } from '../utils/supabase';
+import { sb, supabase } from '../utils/supabase';
 
 // Redesigned dashboard components
 import Sidebar from './components/dashboard/Sidebar';
@@ -25,6 +25,7 @@ function AdminPortal() {
   const [activeFeature, setActiveFeature] = useState('dashboard');
   const [activeLeadContext, setActiveLeadContext] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // States for Team Card quick actions
   const [activeVideoCall, setActiveVideoCall] = useState(null);
@@ -554,18 +555,19 @@ function AdminPortal() {
 
         {/* Left Navigation Sidebar - Absolute overlay on mobile, static on desktop */}
         <div className={`fixed inset-y-0 left-0 z-50 transform lg:transform-none lg:static ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} transition-transform duration-300 ease-in-out`}>
-          <Sidebar 
-            activeFeature={activeFeature} 
-            setActiveFeature={(f) => { 
-              setActiveFeature(f); 
-              setIsSidebarOpen(false); 
-            }} 
+          <Sidebar
+            activeFeature={activeFeature}
+            setActiveFeature={(f) => {
+              setActiveFeature(f);
+              setSearchTerm('');
+              setIsSidebarOpen(false);
+            }}
           />
         </div>
 
         {/* Backdrop for Mobile Sidebar Overlay */}
         {isSidebarOpen && (
-          <div 
+          <div
             onClick={() => setIsSidebarOpen(false)}
             className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs lg:hidden animate-in fade-in duration-200"
           />
@@ -575,10 +577,12 @@ function AdminPortal() {
         <div className="flex-grow h-full flex flex-col min-w-0 bg-white">
 
           {/* Main Top Header Section - Accepts sidebar toggle callback */}
-          <Header 
-            adminProfile={adminProfile} 
-            onOpenProfile={handleOpenProfile} 
-            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} 
+          <Header
+            adminProfile={adminProfile}
+            onOpenProfile={handleOpenProfile}
+            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
           />
 
           {/* Feature Scrollable Body Container - Responsive Padding */}
@@ -643,6 +647,8 @@ function AdminPortal() {
                   people={people}
                   setPeople={updatePeople}
                   companies={companies}
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
                 />
               </div>
             )}
@@ -652,6 +658,8 @@ function AdminPortal() {
                 <Companies
                   companies={companies}
                   setCompanies={updateCompanies}
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
                 />
               </div>
             )}
@@ -666,6 +674,8 @@ function AdminPortal() {
                   leadContext={activeLeadContext}
                   clearLeadContext={() => setActiveLeadContext(null)}
                   onUpdateLead={handleUpdateLead}
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
                 />
               </div>
             )}
@@ -686,7 +696,7 @@ function AdminPortal() {
                         {/* Gradient card background header */}
                         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-br from-[#1769ff] to-[#3525cd]" />
                         <div className="absolute top-28 -right-10 w-28 h-28 rounded-full bg-[#1769ff]/5 blur-md pointer-events-none" />
-                        
+
                         {/* Avatar */}
                         <div className="w-28 h-28 rounded-full overflow-hidden bg-white border-4 border-white shadow-lg relative z-10 mt-14 group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
                           <img src={member.avatar} alt={member.name} className="w-full h-full object-cover rounded-full" />
@@ -705,7 +715,7 @@ function AdminPortal() {
 
                         {/* Interactive Action Buttons */}
                         <div className="flex items-center gap-4 mt-6 z-10 w-full justify-center">
-                          <button 
+                          <button
                             onClick={() => {
                               setActiveHostContext(member);
                               setActiveFeature('scheduler');
@@ -717,7 +727,7 @@ function AdminPortal() {
                           >
                             <span className="material-symbols-outlined text-[20px]">calendar_today</span>
                           </button>
-                          <button 
+                          <button
                             onClick={() => {
                               setActiveChatMember(member);
                               setActiveVideoCall(null);
@@ -727,7 +737,7 @@ function AdminPortal() {
                           >
                             <span className="material-symbols-outlined text-[20px]">chat_bubble</span>
                           </button>
-                          <button 
+                          <button
                             onClick={() => {
                               setActiveVideoCall(member);
                               setActiveChatMember(null);
@@ -844,8 +854,8 @@ function AdminPortal() {
                             type="button"
                             onClick={() => setNewLeadForm({ ...newLeadForm, stage: step.id })}
                             className={`py-[8px] px-xs rounded-lg text-[11px] font-bold transition-all text-center ${isActive
-                                ? 'bg-[#3525cd] text-white shadow-sm'
-                                : 'text-[#464555] hover:bg-[#eceef0]'
+                              ? 'bg-[#3525cd] text-white shadow-sm'
+                              : 'text-[#464555] hover:bg-[#eceef0]'
                               }`}
                           >
                             {step.label}
@@ -1070,20 +1080,31 @@ function AdminPortal() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-sm pt-md border-t border-[#ececec]">
+              <div className="flex items-center justify-between pt-md border-t border-[#ececec]">
                 <button
                   type="button"
-                  onClick={() => setIsProfileModalOpen(false)}
-                  className="px-lg h-11 rounded-xl font-bold text-label-md text-[#8f8f95] hover:bg-[#f5f5f6] transition-colors"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                  }}
+                  className="px-lg h-11 rounded-xl font-bold text-label-md text-red-500 hover:bg-red-50 transition-colors border border-red-200"
                 >
-                  Cancel
+                  Sign Out
                 </button>
-                <button
-                  type="submit"
-                  className="px-lg h-11 rounded-xl bg-[#1769ff] hover:bg-[#0054e6] text-white font-bold text-label-md shadow-md active:scale-[0.98] transition-all"
-                >
-                  Save Changes
-                </button>
+                <div className="flex items-center gap-sm">
+                  <button
+                    type="button"
+                    onClick={() => setIsProfileModalOpen(false)}
+                    className="px-lg h-11 rounded-xl font-bold text-label-md text-[#8f8f95] hover:bg-[#f5f5f6] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-lg h-11 rounded-xl bg-[#1769ff] hover:bg-[#0054e6] text-white font-bold text-label-md shadow-md active:scale-[0.98] transition-all"
+                  >
+                    Save Changes
+                  </button>
+                </div>
               </div>
             </form>
           </div>
@@ -1092,16 +1113,16 @@ function AdminPortal() {
 
       {/* Dynamic Interactive Team Action Overlays */}
       {activeVideoCall && (
-        <VideoCallModal 
-          member={activeVideoCall} 
-          onClose={() => setActiveVideoCall(null)} 
+        <VideoCallModal
+          member={activeVideoCall}
+          onClose={() => setActiveVideoCall(null)}
         />
       )}
 
       {activeChatMember && (
-        <StaffChatDrawer 
-          member={activeChatMember} 
-          onClose={() => setActiveChatMember(null)} 
+        <StaffChatDrawer
+          member={activeChatMember}
+          onClose={() => setActiveChatMember(null)}
         />
       )}
     </div>
@@ -1142,7 +1163,7 @@ function VideoCallModal({ member, onClose }) {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-md text-white select-none animate-in fade-in duration-300">
       <div className="w-full max-w-4xl h-[90vh] max-h-[680px] bg-slate-900 rounded-[32px] overflow-hidden flex flex-col justify-between relative border border-white/10 shadow-2xl p-8">
-        
+
         {/* Dynamic Dialing UI */}
         {callStatus === 'dialing' ? (
           <div className="flex-grow flex flex-col items-center justify-center gap-6">
@@ -1190,7 +1211,7 @@ function VideoCallModal({ member, onClose }) {
                   <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/10 shadow-2xl relative mb-4">
                     <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
                   </div>
-                  
+
                   {/* CSS Animated Audio Waveform */}
                   <div className="flex items-end gap-[4px] h-10 mt-2 select-none pointer-events-none">
                     <div className="w-1 bg-[#1769ff] rounded-full animate-wave-1 h-3" />
@@ -1223,11 +1244,10 @@ function VideoCallModal({ member, onClose }) {
           {/* Mute Button */}
           <button
             onClick={() => setIsMuted(!isMuted)}
-            className={`w-14 h-14 rounded-full flex items-center justify-center transition-all cursor-pointer border-none shadow-md ${
-              isMuted 
-                ? 'bg-red-600 hover:bg-red-700 text-white ring-4 ring-red-600/30' 
+            className={`w-14 h-14 rounded-full flex items-center justify-center transition-all cursor-pointer border-none shadow-md ${isMuted
+                ? 'bg-red-600 hover:bg-red-700 text-white ring-4 ring-red-600/30'
                 : 'bg-white/10 hover:bg-white/20 text-white hover:scale-105'
-            }`}
+              }`}
             title={isMuted ? 'Unmute Mic' : 'Mute Mic'}
           >
             <span className="material-symbols-outlined text-[24px]">
@@ -1238,11 +1258,10 @@ function VideoCallModal({ member, onClose }) {
           {/* Toggle Camera Button */}
           <button
             onClick={() => setIsVideoOff(!isVideoOff)}
-            className={`w-14 h-14 rounded-full flex items-center justify-center transition-all cursor-pointer border-none shadow-md ${
-              isVideoOff 
-                ? 'bg-red-600 hover:bg-red-700 text-white ring-4 ring-red-600/30' 
+            className={`w-14 h-14 rounded-full flex items-center justify-center transition-all cursor-pointer border-none shadow-md ${isVideoOff
+                ? 'bg-red-600 hover:bg-red-700 text-white ring-4 ring-red-600/30'
                 : 'bg-white/10 hover:bg-white/20 text-white hover:scale-105'
-            }`}
+              }`}
             title={isVideoOff ? 'Turn Camera On' : 'Turn Camera Off'}
           >
             <span className="material-symbols-outlined text-[24px]">
@@ -1254,11 +1273,10 @@ function VideoCallModal({ member, onClose }) {
           <button
             onClick={() => setIsScreenSharing(!isScreenSharing)}
             disabled={callStatus !== 'connected'}
-            className={`w-14 h-14 rounded-full flex items-center justify-center transition-all cursor-pointer border-none shadow-md disabled:opacity-40 disabled:pointer-events-none ${
-              isScreenSharing 
-                ? 'bg-[#107c41] hover:bg-[#0e6b37] text-white ring-4 ring-[#107c41]/30' 
+            className={`w-14 h-14 rounded-full flex items-center justify-center transition-all cursor-pointer border-none shadow-md disabled:opacity-40 disabled:pointer-events-none ${isScreenSharing
+                ? 'bg-[#107c41] hover:bg-[#0e6b37] text-white ring-4 ring-[#107c41]/30'
                 : 'bg-white/10 hover:bg-white/20 text-white hover:scale-105'
-            }`}
+              }`}
             title={isScreenSharing ? 'Stop Presenting' : 'Present Screen'}
           >
             <span className="material-symbols-outlined text-[24px]">
@@ -1285,7 +1303,7 @@ function VideoCallModal({ member, onClose }) {
 // SIMULATED STAFF CHAT FLOATING DRAWER (BOTTOM-RIGHT)
 function StaffChatDrawer({ member, onClose }) {
   const [replyText, setReplyText] = useState('');
-  
+
   // Custom chat history based on member
   const getInitialChatHistory = () => {
     switch (member.id) {
@@ -1330,12 +1348,12 @@ function StaffChatDrawer({ member, onClose }) {
 
     setMessages(prev => [...prev, userMsg]);
     setReplyText('');
-    
+
     // Simulate team member typing & response
     setIsTyping(true);
     setTimeout(() => {
       setIsTyping(false);
-      
+
       let replyVal = "Awesome! I am on it.";
       if (member.id === 'anna') {
         replyVal = "Got it! I will review the CRM logs. Let's make sure the client rep gets locked into the scope schedule.";
@@ -1358,7 +1376,7 @@ function StaffChatDrawer({ member, onClose }) {
 
   return (
     <div className="fixed bottom-6 right-6 z-[160] w-[360px] h-[480px] bg-white border border-[#ececec] rounded-[28px] shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-8 duration-300">
-      
+
       {/* Header */}
       <div className="bg-gradient-to-r from-gray-900 to-slate-800 text-white px-5 py-4 flex justify-between items-center select-none">
         <div className="flex items-center gap-3">
@@ -1371,7 +1389,7 @@ function StaffChatDrawer({ member, onClose }) {
             <span className="text-[10px] text-white/60 block font-semibold">{member.role}</span>
           </div>
         </div>
-        <button 
+        <button
           onClick={onClose}
           className="text-white/60 hover:text-white transition-colors bg-transparent border-none cursor-pointer flex items-center justify-center p-1 rounded-full hover:bg-white/10"
         >
@@ -1384,15 +1402,14 @@ function StaffChatDrawer({ member, onClose }) {
         {messages.map((m) => {
           const isAdmin = m.sender === 'admin';
           return (
-            <div 
-              key={m.id} 
+            <div
+              key={m.id}
               className={`flex flex-col max-w-[80%] ${isAdmin ? 'self-end items-end' : 'self-start items-start'}`}
             >
-              <div className={`px-4 py-2.5 rounded-2xl text-[12px] leading-relaxed ${
-                isAdmin 
-                  ? 'bg-[#1769ff] text-white rounded-tr-none' 
+              <div className={`px-4 py-2.5 rounded-2xl text-[12px] leading-relaxed ${isAdmin
+                  ? 'bg-[#1769ff] text-white rounded-tr-none'
                   : 'bg-white text-slate-800 border border-[#ececec] rounded-tl-none shadow-sm'
-              }`}>
+                }`}>
                 {m.text}
               </div>
               <span className="text-[9px] text-[#8f8f95] mt-1 font-bold">{m.time}</span>

@@ -1,10 +1,27 @@
+import { createClient } from '@supabase/supabase-js';
+
 const SUPABASE_URL = 'https://garhywqkxyxubpnurzlp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdhcmh5d3FreHl4dWJwbnVyemxwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTA5NDgsImV4cCI6MjA5NTM4Njk0OH0.fsdQIKnROKwuXmc3ag37hJCfFoMqfxAlkD5oNNpDRJE';
 
-const headers = {
-  'apikey': SUPABASE_ANON_KEY,
-  'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-  'Content-Type': 'application/json'
+// Initialize and export the official Supabase client
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Helper to perform REST fetches with the active user session JWT
+const sbFetch = async (url, options = {}) => {
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token || SUPABASE_ANON_KEY;
+  
+  const headers = {
+    'apikey': SUPABASE_ANON_KEY,
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
+    ...options.headers
+  };
+
+  return fetch(url, {
+    ...options,
+    headers
+  });
 };
 
 export const sb = {
@@ -12,7 +29,7 @@ export const sb = {
   leads: {
     list: async () => {
       try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/leads?select=*&order=created_at.desc`, { headers });
+        const res = await sbFetch(`${SUPABASE_URL}/rest/v1/leads?select=*&order=created_at.desc`);
         if (!res.ok) throw new Error('Network error');
         return await res.json();
       } catch (e) {
@@ -22,9 +39,9 @@ export const sb = {
     },
     insert: async (item) => {
       try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+        const res = await sbFetch(`${SUPABASE_URL}/rest/v1/leads`, {
           method: 'POST',
-          headers: { ...headers, 'Prefer': 'return=representation' },
+          headers: { 'Prefer': 'return=representation' },
           body: JSON.stringify(item)
         });
         return await res.json();
@@ -35,9 +52,8 @@ export const sb = {
     },
     update: async (id, item) => {
       try {
-        return await fetch(`${SUPABASE_URL}/rest/v1/leads?id=eq.${id}`, {
+        return await sbFetch(`${SUPABASE_URL}/rest/v1/leads?id=eq.${id}`, {
           method: 'PATCH',
-          headers,
           body: JSON.stringify(item)
         });
       } catch (e) {
@@ -46,9 +62,8 @@ export const sb = {
     },
     delete: async (id) => {
       try {
-        return await fetch(`${SUPABASE_URL}/rest/v1/leads?id=eq.${id}`, {
-          method: 'DELETE',
-          headers
+        return await sbFetch(`${SUPABASE_URL}/rest/v1/leads?id=eq.${id}`, {
+          method: 'DELETE'
         });
       } catch (e) {
         console.error('Leads delete failed:', e);
@@ -60,7 +75,7 @@ export const sb = {
   people: {
     list: async () => {
       try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/people?select=*&order=created_at.desc`, { headers });
+        const res = await sbFetch(`${SUPABASE_URL}/rest/v1/people?select=*&order=created_at.desc`);
         if (!res.ok) throw new Error('Network error');
         return await res.json();
       } catch (e) {
@@ -70,9 +85,9 @@ export const sb = {
     },
     insert: async (item) => {
       try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/people`, {
+        const res = await sbFetch(`${SUPABASE_URL}/rest/v1/people`, {
           method: 'POST',
-          headers: { ...headers, 'Prefer': 'return=representation' },
+          headers: { 'Prefer': 'return=representation' },
           body: JSON.stringify(item)
         });
         return await res.json();
@@ -83,9 +98,8 @@ export const sb = {
     },
     update: async (id, item) => {
       try {
-        return await fetch(`${SUPABASE_URL}/rest/v1/people?id=eq.${id}`, {
+        return await sbFetch(`${SUPABASE_URL}/rest/v1/people?id=eq.${id}`, {
           method: 'PATCH',
-          headers,
           body: JSON.stringify(item)
         });
       } catch (e) {
@@ -94,9 +108,8 @@ export const sb = {
     },
     delete: async (id) => {
       try {
-        return await fetch(`${SUPABASE_URL}/rest/v1/people?id=eq.${id}`, {
-          method: 'DELETE',
-          headers
+        return await sbFetch(`${SUPABASE_URL}/rest/v1/people?id=eq.${id}`, {
+          method: 'DELETE'
         });
       } catch (e) {
         console.error('People delete failed:', e);
@@ -108,7 +121,7 @@ export const sb = {
   companies: {
     list: async () => {
       try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/companies?select=*&order=created_at.desc`, { headers });
+        const res = await sbFetch(`${SUPABASE_URL}/rest/v1/companies?select=*&order=created_at.desc`);
         if (!res.ok) throw new Error('Network error');
         return await res.json();
       } catch (e) {
@@ -118,9 +131,9 @@ export const sb = {
     },
     insert: async (item) => {
       try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/companies`, {
+        const res = await sbFetch(`${SUPABASE_URL}/rest/v1/companies`, {
           method: 'POST',
-          headers: { ...headers, 'Prefer': 'return=representation' },
+          headers: { 'Prefer': 'return=representation' },
           body: JSON.stringify(item)
         });
         return await res.json();
@@ -131,9 +144,8 @@ export const sb = {
     },
     update: async (id, item) => {
       try {
-        return await fetch(`${SUPABASE_URL}/rest/v1/companies?id=eq.${id}`, {
+        return await sbFetch(`${SUPABASE_URL}/rest/v1/companies?id=eq.${id}`, {
           method: 'PATCH',
-          headers,
           body: JSON.stringify(item)
         });
       } catch (e) {
@@ -142,9 +154,8 @@ export const sb = {
     },
     delete: async (id) => {
       try {
-        return await fetch(`${SUPABASE_URL}/rest/v1/companies?id=eq.${id}`, {
-          method: 'DELETE',
-          headers
+        return await sbFetch(`${SUPABASE_URL}/rest/v1/companies?id=eq.${id}`, {
+          method: 'DELETE'
         });
       } catch (e) {
         console.error('Companies delete failed:', e);
@@ -156,7 +167,7 @@ export const sb = {
   projects: {
     list: async () => {
       try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/projects?select=*&order=created_at.desc`, { headers });
+        const res = await sbFetch(`${SUPABASE_URL}/rest/v1/projects?select=*&order=created_at.desc`);
         if (!res.ok) throw new Error('Network error');
         return await res.json();
       } catch (e) {
@@ -166,9 +177,9 @@ export const sb = {
     },
     insert: async (item) => {
       try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/projects`, {
+        const res = await sbFetch(`${SUPABASE_URL}/rest/v1/projects`, {
           method: 'POST',
-          headers: { ...headers, 'Prefer': 'return=representation' },
+          headers: { 'Prefer': 'return=representation' },
           body: JSON.stringify(item)
         });
         return await res.json();
@@ -179,9 +190,8 @@ export const sb = {
     },
     update: async (id, item) => {
       try {
-        return await fetch(`${SUPABASE_URL}/rest/v1/projects?id=eq.${id}`, {
+        return await sbFetch(`${SUPABASE_URL}/rest/v1/projects?id=eq.${id}`, {
           method: 'PATCH',
-          headers,
           body: JSON.stringify(item)
         });
       } catch (e) {
@@ -190,9 +200,8 @@ export const sb = {
     },
     delete: async (id) => {
       try {
-        return await fetch(`${SUPABASE_URL}/rest/v1/projects?id=eq.${id}`, {
-          method: 'DELETE',
-          headers
+        return await sbFetch(`${SUPABASE_URL}/rest/v1/projects?id=eq.${id}`, {
+          method: 'DELETE'
         });
       } catch (e) {
         console.error('Projects delete failed:', e);
