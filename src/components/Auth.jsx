@@ -106,9 +106,10 @@ function Auth() {
 
           {/* Logo Section */}
           <div className="flex items-center gap-3 relative z-10">
-            <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center shadow-md relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-tr from-gray-200 to-white" />
-              <div className="w-3.5 h-3.5 bg-black rotate-12 rounded-sm" />
+            <div className="w-9 h-9 bg-black rounded-lg flex items-center justify-center shadow-md relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-tr from-gray-900 to-black" />
+              <div className="w-4 h-4 bg-white/20 absolute rotate-45 -top-1 -left-1" />
+              <div className="w-3.5 h-3.5 bg-white absolute rotate-12 rounded-sm" />
             </div>
             <span className="text-[28px] font-black tracking-tight font-poppins select-none">
               <span className="text-white">Tez</span><span className="text-[#1769ff]">X</span>
@@ -154,12 +155,14 @@ function Auth() {
         <div className="lg:col-span-7 p-8 md:p-12 flex flex-col justify-center bg-white text-left">
           
           {/* Top Panel Brand Logo for Mobile only */}
-          <div className="flex items-center gap-2 mb-8 lg:hidden">
-            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center shadow-md">
-              <div className="w-3 h-3 bg-white rotate-12 rounded-sm" />
+          <div className="flex items-center gap-3 mb-8 lg:hidden">
+            <div className="w-9 h-9 bg-black rounded-lg flex items-center justify-center shadow-md relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-tr from-gray-900 to-black" />
+              <div className="w-4 h-4 bg-white/20 absolute rotate-45 -top-1 -left-1" />
+              <div className="w-3.5 h-3.5 bg-white absolute rotate-12 rounded-sm" />
             </div>
-            <span className="text-[24px] font-black tracking-tight">
-              Tez<span className="text-[#1769ff]">X</span>
+            <span className="text-[28px] font-black tracking-tight font-poppins flex items-center select-none">
+              <span className="text-black">Tez</span><span className="text-[#1769ff]">X</span>
             </span>
           </div>
 
