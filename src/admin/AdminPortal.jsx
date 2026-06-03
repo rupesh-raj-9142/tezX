@@ -65,6 +65,57 @@ function AdminPortal() {
     return [];
   });
 
+  // People State
+  const [people, setPeople] = useState(() => {
+    try {
+      const saved = localStorage.getItem('tezx_people');
+      if (saved && saved !== 'undefined') {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error("Failed to parse tezx_people:", e);
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('tezx_people', JSON.stringify(people));
+  }, [people]);
+
+  // Companies State
+  const [companies, setCompanies] = useState(() => {
+    try {
+      const saved = localStorage.getItem('tezx_companies');
+      if (saved && saved !== 'undefined') {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error("Failed to parse tezx_companies:", e);
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('tezx_companies', JSON.stringify(companies));
+  }, [companies]);
+
+  // Projects State
+  const [projects, setProjects] = useState(() => {
+    try {
+      const saved = localStorage.getItem('tezx_projects');
+      if (saved && saved !== 'undefined') {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error("Failed to parse tezx_projects:", e);
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('tezx_projects', JSON.stringify(projects));
+  }, [projects]);
+
   // Fetch live database lists from Supabase Postgres on mount with 5-second polling sync
   useEffect(() => {
     const syncDbWithSupabase = async () => {
@@ -122,57 +173,6 @@ function AdminPortal() {
       console.error("Failed to save tezx_leads to localStorage:", e);
     }
   }, [leads]);
-
-  // People State
-  const [people, setPeople] = useState(() => {
-    try {
-      const saved = localStorage.getItem('tezx_people');
-      if (saved && saved !== 'undefined') {
-        return JSON.parse(saved);
-      }
-    } catch (e) {
-      console.error("Failed to parse tezx_people:", e);
-    }
-    return [];
-  });
-
-  useEffect(() => {
-    localStorage.setItem('tezx_people', JSON.stringify(people));
-  }, [people]);
-
-  // Companies State
-  const [companies, setCompanies] = useState(() => {
-    try {
-      const saved = localStorage.getItem('tezx_companies');
-      if (saved && saved !== 'undefined') {
-        return JSON.parse(saved);
-      }
-    } catch (e) {
-      console.error("Failed to parse tezx_companies:", e);
-    }
-    return [];
-  });
-
-  useEffect(() => {
-    localStorage.setItem('tezx_companies', JSON.stringify(companies));
-  }, [companies]);
-
-  // Projects State
-  const [projects, setProjects] = useState(() => {
-    try {
-      const saved = localStorage.getItem('tezx_projects');
-      if (saved && saved !== 'undefined') {
-        return JSON.parse(saved);
-      }
-    } catch (e) {
-      console.error("Failed to parse tezx_projects:", e);
-    }
-    return [];
-  });
-
-  useEffect(() => {
-    localStorage.setItem('tezx_projects', JSON.stringify(projects));
-  }, [projects]);
 
   // Relational Supabase interceptors for state arrays
   const updatePeople = async (newVal) => {

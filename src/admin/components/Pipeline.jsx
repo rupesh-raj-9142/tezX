@@ -135,7 +135,9 @@ function Pipeline({ leads = [], onUpdateLead, onDeleteLead, onOpenNewLead, onNav
       try {
         const saved = localStorage.getItem('tezx_projects');
         if (saved && saved !== 'undefined') projectsBackup = JSON.parse(saved);
-      } catch (err) { }
+      } catch (err) {
+        console.error("Failed to parse projects backup:", err);
+      }
       projectsBackup.unshift(newProject);
       localStorage.setItem('tezx_projects', JSON.stringify(projectsBackup));
     } catch (err) {
