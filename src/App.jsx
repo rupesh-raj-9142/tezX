@@ -12,10 +12,16 @@ function App() {
 
   useEffect(() => {
     // Check current active session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setLoading(false)
-    })
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        setSession(session)
+      })
+      .catch((err) => {
+        console.error("Error getting session:", err)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
 
     // Listen to authentication changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -30,12 +36,21 @@ function App() {
 
   useEffect(() => {
     const handleRoute = () => {
-      // Check both hash routing (e.g. #/admin) and path routing (e.g. /admin)
+      // Check path and hash routing for admin and auth views
       const path = window.location.pathname;
       const hash = window.location.hash;
 
       if (path.startsWith('/admin') || hash === '#/admin' || hash.startsWith('#/admin')) {
         setCurrentView('admin');
+      } else if (
+        path.startsWith('/authencation') || 
+        path.startsWith('/authentication') || 
+        hash === '#/authencation' || 
+        hash === '#/authentication' ||
+        hash.startsWith('#/authencation') || 
+        hash.startsWith('#/authentication')
+      ) {
+        setCurrentView('auth');
       } else {
         setCurrentView('user');
       }
@@ -65,7 +80,8 @@ function App() {
     )
   }
 
-  if (!session) {
+  // Render Auth component if explicit auth path is selected, or if user has no session
+  if (currentView === 'auth' || !session) {
     return <Auth />
   }
 

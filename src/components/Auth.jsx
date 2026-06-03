@@ -54,6 +54,8 @@ function Auth() {
           setName('');
         } else {
           setSuccessMsg('Sign up successful!');
+          window.history.pushState({}, '', '/');
+          window.dispatchEvent(new Event('popstate'));
         }
       } else {
         // Log in user
@@ -63,6 +65,9 @@ function Auth() {
         });
 
         if (signInErr) throw signInErr;
+
+        window.history.pushState({}, '', '/');
+        window.dispatchEvent(new Event('popstate'));
       }
     } catch (err) {
       console.error('Authentication error:', err);
