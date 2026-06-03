@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../utils/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, User, Eye, EyeOff, Sparkles, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, Sparkles, CheckCircle2, AlertCircle, ArrowRight, Phone } from 'lucide-react';
 
 const marketingQuotes = [
   {
@@ -19,6 +19,7 @@ function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -39,6 +40,7 @@ function Auth() {
           options: {
             data: {
               full_name: name || email.split('@')[0],
+              phone: phone,
             }
           }
         });
@@ -52,6 +54,7 @@ function Auth() {
           setEmail('');
           setPassword('');
           setName('');
+          setPhone('');
         } else {
           setSuccessMsg('Sign up successful!');
           window.history.pushState({}, '', '/');
@@ -171,6 +174,7 @@ function Auth() {
                 setIsSignUp(false);
                 setError(null);
                 setSuccessMsg(null);
+                setPhone('');
               }}
               className={`px-6 py-2.5 rounded-lg text-[13px] font-black transition-all flex items-center gap-1.5 ${!isSignUp
                 ? 'bg-white text-black shadow-sm'
@@ -184,6 +188,7 @@ function Auth() {
                 setIsSignUp(true);
                 setError(null);
                 setSuccessMsg(null);
+                setPhone('');
               }}
               className={`px-6 py-2.5 rounded-lg text-[13px] font-black transition-all flex items-center gap-1.5 ${isSignUp
                 ? 'bg-white text-black shadow-sm'
@@ -250,6 +255,28 @@ function Auth() {
                     placeholder="Alex Rivers"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    className="w-full h-11 pl-11 pr-4 bg-[#f3f3f5]/50 border border-[#ececec] rounded-xl outline-none focus:ring-2 focus:ring-[#1769ff]/15 focus:border-[#1769ff] focus:bg-white transition-all font-body-sm text-[13px]"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Phone Number (Sign Up Only) */}
+            {isSignUp && (
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black text-[#8f8f95] uppercase tracking-wider">
+                  Phone Number
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#8f8f95] pointer-events-none">
+                    <Phone className="w-[18px] h-[18px]" />
+                  </span>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+1 (555) 000-0000"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                     className="w-full h-11 pl-11 pr-4 bg-[#f3f3f5]/50 border border-[#ececec] rounded-xl outline-none focus:ring-2 focus:ring-[#1769ff]/15 focus:border-[#1769ff] focus:bg-white transition-all font-body-sm text-[13px]"
                   />
                 </div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import UserPortal from './user/UserPortal'
 import AdminPortal from './admin/AdminPortal'
 import Auth from './components/Auth'
+import AdminAuth from './components/AdminAuth'
 import { supabase } from './utils/supabase'
 import './App.css'
 
@@ -80,6 +81,20 @@ function App() {
     )
   }
 
+  const isAdmin = session && (
+    session.user.email?.toLowerCase().includes('admin') || 
+    session.user.email?.toLowerCase() === 'admin@tezx.com' ||
+    session.user.email?.toLowerCase() === 'r@gmail.com'
+  );
+
+  // If currentView is admin, verify administrator authentication
+  if (currentView === 'admin') {
+    if (!isAdmin) {
+      return <AdminAuth session={session} />
+    }
+    return <AdminPortal session={session} />
+  }
+
   // Render Auth component if explicit auth path is selected, or if user has no session
   if (currentView === 'auth' || !session) {
     return <Auth />
@@ -88,7 +103,6 @@ function App() {
   return (
     <>
       {currentView === 'user' && <UserPortal session={session} />}
-      {currentView === 'admin' && <AdminPortal session={session} />}
     </>
   )
 }

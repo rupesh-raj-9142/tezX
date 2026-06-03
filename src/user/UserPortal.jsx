@@ -363,18 +363,7 @@ function UserPortal() {
 
             {/* Action buttons - Icon only on mobile to save layout spacing */}
             <div className="flex items-center gap-2 sm:gap-3">
-              <a
-                onClick={() => {
-                  window.history.pushState({}, '', '#/admin');
-                  window.dispatchEvent(new Event('popstate'));
-                }}
-                className="flex items-center gap-1.5 py-2 px-3 sm:px-4 rounded-full font-semibold text-[13px] sm:text-[14px] bg-[#f3f3f5] text-black hover:bg-black/10 cursor-pointer transition-all duration-200"
-                title="Admin Portal"
-              >
-                <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
-                <span className="hidden md:inline">Admin Portal</span>
-              </a>
-
+              
               <button
                 onClick={() => supabase.auth.signOut()}
                 className="flex items-center gap-1.5 py-2 px-3 sm:px-4 rounded-full font-semibold text-[13px] sm:text-[14px] bg-[#ffebee] text-[#ba1a1a] hover:bg-[#ffcdd2] cursor-pointer transition-all duration-200 border-none"
@@ -420,7 +409,7 @@ function UserPortal() {
               </div>
 
               {/* Bento Card Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Inquiry card */}
                 <div className="bg-white border border-[#ececec] rounded-[28px] p-6 shadow-sm hover:shadow-md hover:border-[#1769ff]/30 transition-all flex flex-col justify-between group h-[220px]">
                   <div className="flex justify-between items-start">
@@ -458,29 +447,6 @@ function UserPortal() {
                     className="w-full py-2.5 bg-[#f3f3f5] hover:bg-[#1769ff] hover:text-white text-black hover:text-white font-extrabold text-[12px] rounded-xl transition-all cursor-pointer border-none"
                   >
                     Enter Client Workspace
-                  </button>
-                </div>
-
-                {/* Admin card */}
-                <div className="bg-white border border-[#ececec] rounded-[28px] p-6 shadow-sm hover:shadow-md hover:border-[#1769ff]/30 transition-all flex flex-col justify-between group h-[220px]">
-                  <div className="flex justify-between items-start">
-                    <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center group-hover:scale-105 transition-transform flex-shrink-0">
-                      <span className="material-symbols-outlined text-[24px]">admin_panel_settings</span>
-                    </div>
-                    <span className="text-[10px] font-black text-[#8f8f95] uppercase tracking-wider">admin desk</span>
-                  </div>
-                  <div>
-                    <h4 className="text-[16px] sm:text-[18px] font-black text-black leading-tight">Admin Control Panel</h4>
-                    <p className="text-[12px] text-[#8f8f95] mt-1 leading-snug">Manage pipeline columns, staff contacts, and CRM settings.</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      window.history.pushState({}, '', '#/admin');
-                      window.dispatchEvent(new Event('popstate'));
-                    }}
-                    className="w-full py-2.5 bg-black text-white hover:bg-black/90 font-extrabold text-[12px] rounded-xl transition-all cursor-pointer border-none"
-                  >
-                    Launch Admin Portal
                   </button>
                 </div>
               </div>
