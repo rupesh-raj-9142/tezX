@@ -90,17 +90,17 @@ function Auth() {
   }, []);
 
   return (
-    <div className="w-screen h-screen bg-[#f3f3f5] font-body-md text-[#111111] flex items-center justify-center selection:bg-brand-blue/10 relative overflow-hidden select-none">
+    <div className="w-screen h-screen bg-[#e0f2fe] font-body-md text-[#111111] flex items-center justify-center selection:bg-brand-blue/10 relative overflow-hidden select-none">
       {/* Dynamic Background Glows */}
       <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#1769ff]/10 blur-[130px] pointer-events-none" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-brand-purple/10 blur-[130px] pointer-events-none" />
-      
+
       {/* Decorative Grid Pattern */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#111111 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
       {/* Main Glassmorphic Wrapper */}
       <div className="w-full h-full bg-white/70 backdrop-blur-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 relative z-10">
-        
+
         {/* Left Side: Brand Visual Panel (Hidden on mobile) */}
         <div className="lg:col-span-5 bg-gradient-to-tr from-black via-slate-900 to-black p-10 flex flex-col justify-between text-white relative overflow-hidden hidden lg:flex">
           {/* Subtle Abstract Wave Effect */}
@@ -154,8 +154,8 @@ function Auth() {
         </div>
 
         {/* Right Side: Auth Inputs Panel */}
-        <div className="lg:col-span-7 p-8 md:p-12 flex flex-col justify-center bg-white text-left">
-          
+        <div className="lg:col-span-7 p-8 md:p-12 flex flex-col justify-center bg-white/80 backdrop-blur-md text-left">
+
           {/* Top Panel Brand Logo for Mobile only */}
           <div className="flex items-center gap-3 mb-8 lg:hidden">
             <div className="w-9 h-9 bg-black rounded-lg flex items-center justify-center shadow-md relative overflow-hidden group">
@@ -179,7 +179,7 @@ function Auth() {
               className={`px-6 py-2.5 rounded-lg text-[13px] font-black transition-all flex items-center gap-1.5 ${!isSignUp
                 ? 'bg-white text-black shadow-sm'
                 : 'text-[#8f8f95] hover:text-black hover:bg-black/5'
-              }`}
+                }`}
             >
               Sign In
             </button>
@@ -193,7 +193,7 @@ function Auth() {
               className={`px-6 py-2.5 rounded-lg text-[13px] font-black transition-all flex items-center gap-1.5 ${isSignUp
                 ? 'bg-white text-black shadow-sm'
                 : 'text-[#8f8f95] hover:text-black hover:bg-black/5'
-              }`}
+                }`}
             >
               Sign Up
             </button>
@@ -238,7 +238,7 @@ function Auth() {
 
           {/* Main Credentials Form */}
           <form onSubmit={handleAuth} className="space-y-4">
-            
+
             {/* Full Name (Sign Up Only) */}
             {isSignUp && (
               <div className="space-y-1.5">
@@ -321,12 +321,12 @@ function Auth() {
                       supabase.auth.resetPasswordForEmail(email, {
                         redirectTo: window.location.origin
                       })
-                      .then(({ error: resetErr }) => {
-                        if (resetErr) throw resetErr;
-                        setSuccessMsg('Password reset link sent to your email.');
-                      })
-                      .catch(err => setError(err.message))
-                      .finally(() => setLoading(false));
+                        .then(({ error: resetErr }) => {
+                          if (resetErr) throw resetErr;
+                          setSuccessMsg('Password reset link sent to your email.');
+                        })
+                        .catch(err => setError(err.message))
+                        .finally(() => setLoading(false));
                     }}
                     className="text-[11px] font-bold text-[#1769ff] hover:underline bg-transparent border-none cursor-pointer p-0"
                   >
@@ -372,7 +372,7 @@ function Auth() {
               )}
             </button>
           </form>
-          
+
           {/* Footer Terms */}
           <div className="mt-8 text-center text-[11px] text-[#8f8f95] font-bold select-none tracking-wide">
             Protected by TezX Key Cryptography and Supabase Auth.

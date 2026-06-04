@@ -44,11 +44,11 @@ function App() {
       if (path.startsWith('/admin') || hash === '#/admin' || hash.startsWith('#/admin')) {
         setCurrentView('admin');
       } else if (
-        path.startsWith('/authencation') || 
-        path.startsWith('/authentication') || 
-        hash === '#/authencation' || 
+        path.startsWith('/authencation') ||
+        path.startsWith('/authentication') ||
+        hash === '#/authencation' ||
         hash === '#/authentication' ||
-        hash.startsWith('#/authencation') || 
+        hash.startsWith('#/authencation') ||
         hash.startsWith('#/authentication')
       ) {
         setCurrentView('auth');
@@ -72,7 +72,7 @@ function App() {
 
   if (loading) {
     return (
-      <div className="w-screen h-screen flex items-center justify-center bg-[#f3f3f5]">
+      <div className="w-screen h-screen flex items-center justify-center bg-[#e0f2fe]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-[#1769ff] border-t-transparent rounded-full animate-spin" />
           <span className="text-[14px] font-extrabold text-[#8f8f95] animate-pulse">TezX CRM Syncing...</span>
@@ -82,7 +82,7 @@ function App() {
   }
 
   const isAdmin = session && (
-    session.user.email?.toLowerCase().includes('admin') || 
+    session.user.email?.toLowerCase().includes('admin') ||
     session.user.email?.toLowerCase() === 'admin@tezx.com' ||
     session.user.email?.toLowerCase() === 'r@gmail.com'
   );

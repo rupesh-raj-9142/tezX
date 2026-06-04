@@ -350,14 +350,14 @@ function UserPortal() {
                 <span className="hidden sm:inline">Inquiry Desk</span>
               </button>
               <button
-                onClick={() => setActiveTab('workspace')}
-                className={`px-3 sm:px-5 py-2 rounded-lg text-[13px] sm:text-[14px] font-extrabold transition-all flex items-center gap-1.5 ${activeTab === 'workspace'
+                onClick={() => setActiveTab('status')}
+                className={`px-3 sm:px-5 py-2 rounded-lg text-[13px] sm:text-[14px] font-extrabold transition-all flex items-center gap-1.5 ${activeTab === 'status'
                   ? 'bg-white shadow-sm text-[#1769ff]'
                   : 'text-[#8f8f95] hover:bg-black/5 hover:text-black'
                   }`}
               >
-                <span className="material-symbols-outlined text-[18px]">business_center</span>
-                <span className="hidden sm:inline">Client Workspace</span>
+                <span className="material-symbols-outlined text-[18px]">track_changes</span>
+                <span className="hidden sm:inline">Project Status</span>
               </button>
             </div>
 
@@ -390,20 +390,12 @@ function UserPortal() {
                 <div className="relative z-10">
                   <span className="text-[10px] font-black tracking-widest bg-white/20 px-3 py-1 rounded-full text-white uppercase">TezX Hub Active</span>
                   <h1 className="text-[32px] sm:text-[38px] font-black tracking-tight mt-3 leading-none text-white">Welcome to your Portal</h1>
-                  <p className="text-white/80 text-[13px] sm:text-[14px] font-medium mt-2">Submit briefs, monitor deliverable project scopes, and manage pipelines in real-time.</p>
+                  <p className="text-white/80 text-[13px] sm:text-[14px] font-medium mt-2">Submit briefs and track your active inquiries in real-time.</p>
                 </div>
-                <div className="relative z-10 flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15">
+                <div className="relative z-10 flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/15">
                   <div className="text-center">
-                    <span className="text-[10px] font-bold text-white/70 block uppercase">Inquiries</span>
-                    <span className="text-[18px] font-black text-white">{leads.length}</span>
-                  </div>
-                  <div className="text-center px-4 border-x border-white/10">
-                    <span className="text-[10px] font-bold text-white/70 block uppercase">Deployments</span>
-                    <span className="text-[18px] font-black text-white">{projects.length}</span>
-                  </div>
-                  <div className="text-center">
-                    <span className="text-[10px] font-bold text-white/70 block uppercase">Roster</span>
-                    <span className="text-[18px] font-black text-white">{people.length}</span>
+                    <span className="text-[10px] font-bold text-white/70 block uppercase font-black tracking-wider">Active Inquiries</span>
+                    <span className="text-[20px] font-black text-white">{leads.length}</span>
                   </div>
                 </div>
               </div>
@@ -430,82 +422,31 @@ function UserPortal() {
                   </button>
                 </div>
 
-                {/* Workspace card */}
+                {/* Project Status card */}
                 <div className="bg-white border border-[#ececec] rounded-[28px] p-6 shadow-sm hover:shadow-md hover:border-[#1769ff]/30 transition-all flex flex-col justify-between group h-[220px]">
                   <div className="flex justify-between items-start">
-                    <div className="w-12 h-12 rounded-2xl bg-secondary/10 text-[#3323cc] flex items-center justify-center group-hover:scale-105 transition-transform flex-shrink-0">
-                      <span className="material-symbols-outlined text-[24px]">business_center</span>
+                    <div className="w-12 h-12 rounded-2xl bg-[#e0f2fe] text-[#0284c7] flex items-center justify-center group-hover:scale-105 transition-transform flex-shrink-0">
+                      <span className="material-symbols-outlined text-[24px]">track_changes</span>
                     </div>
-                    <span className="text-[10px] font-black text-[#8f8f95] uppercase tracking-wider">workspace</span>
+                    <span className="text-[10px] font-black text-[#8f8f95] uppercase tracking-wider">status tracker</span>
                   </div>
                   <div>
-                    <h4 className="text-[16px] sm:text-[18px] font-black text-black leading-tight">Client Workspace</h4>
-                    <p className="text-[12px] text-[#8f8f95] mt-1 leading-snug">Monitor deliverable milestones and track project scopes.</p>
+                    <h4 className="text-[16px] sm:text-[18px] font-black text-black leading-tight">Track Progress & Status</h4>
+                    <p className="text-[12px] text-[#8f8f95] mt-1 leading-snug">Monitor if your projects/inquiries are accepted, won, or solved, and view active milestone progress.</p>
                   </div>
                   <button
-                    onClick={() => setActiveTab('workspace')}
+                    onClick={() => setActiveTab('status')}
                     className="w-full py-2.5 bg-[#f3f3f5] hover:bg-[#1769ff] hover:text-white text-black hover:text-white font-extrabold text-[12px] rounded-xl transition-all cursor-pointer border-none"
                   >
-                    Enter Client Workspace
+                    Check Project Status
                   </button>
                 </div>
               </div>
 
-              {/* Real-time Activity Split View */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-6">
-                {/* Active Deliverables preview (left) */}
-                <div className="lg:col-span-6 space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-[15px] sm:text-[16px] font-extrabold text-[#111111] flex items-center gap-2">
-                      <span className="material-symbols-outlined text-[#1769ff]">running_with_errors</span>
-                      Active Deployments
-                    </h3>
-                    <button
-                      onClick={() => setActiveTab('workspace')}
-                      className="text-[11px] font-bold text-[#1769ff] hover:underline bg-transparent border-none cursor-pointer"
-                    >
-                      View all ({projects.length})
-                    </button>
-                  </div>
-
-                  <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2">
-                    {projects.length > 0 ? (
-                      projects.slice(0, 2).map((project) => {
-                        const pct = getProgressPercentage(project.status);
-                        return (
-                          <div key={project.id} className="bg-white border border-[#ececec] rounded-2xl p-4 shadow-sm flex flex-col justify-between gap-3">
-                            <div className="flex justify-between items-center">
-                              <span className="px-2 py-0.5 bg-[#f3f3f5] rounded text-[10px] font-bold text-black truncate max-w-[120px]">
-                                🏢 {project.company}
-                              </span>
-                              <span className={`px-2 py-0.5 rounded-full text-[9px] font-black tracking-wide uppercase ${project.status === 'Completed' ? 'bg-[#e2f9ee] text-[#107c41]' :
-                                  project.status === 'In Progress' ? 'bg-[#1769ff]/10 text-[#1769ff]' : 'bg-[#ffb11a]/15 text-[#b27200]'
-                                }`}>
-                                {project.status}
-                              </span>
-                            </div>
-                            <div>
-                              <h4 className="text-[13px] font-extrabold text-black">{project.name}</h4>
-                              <div className="w-full h-1.5 bg-[#f3f3f5] rounded-full overflow-hidden mt-2">
-                                <div
-                                  className={`h-full rounded-full ${project.status === 'Completed' ? 'bg-[#107c41]' : project.status === 'In Progress' ? 'bg-[#1769ff]' : 'bg-[#ffb11a]'}`}
-                                  style={{ width: `${pct}%` }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className="bg-white border border-dashed border-[#ececec] rounded-2xl p-8 text-center text-[#8f8f95] text-[12px] bg-slate-50/20">
-                        No active deliverable deployments.
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Recent Inquiries preview (right) */}
-                <div className="lg:col-span-6 space-y-4">
+              {/* Real-time Activity View */}
+              <div className="grid grid-cols-1 gap-8 pt-6">
+                {/* Recent Inquiries preview (full-width) */}
+                <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <h3 className="text-[15px] sm:text-[16px] font-extrabold text-[#111111] flex items-center gap-2">
                       <span className="material-symbols-outlined text-[#1769ff]">history</span>
@@ -519,13 +460,13 @@ function UserPortal() {
                     </button>
                   </div>
 
-                  <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2">
+                  <div className="space-y-4 max-h-[450px] overflow-y-auto pr-2">
                     {leads.length > 0 ? (
-                      leads.slice(0, 2).map((lead) => (
+                      leads.map((lead) => (
                         <div key={lead.id} className="bg-white border border-[#ececec] rounded-2xl p-4 shadow-sm flex items-center justify-between gap-3">
                           <div className="min-w-0">
-                            <h4 className="text-[13px] font-extrabold text-black truncate">{lead.company}</h4>
-                            <p className="text-[11px] text-[#8f8f95] font-semibold truncate mt-0.5">{lead.project}</p>
+                            <h4 className="text-[14px] font-extrabold text-black truncate">{lead.company}</h4>
+                            <p className="text-[12px] text-[#8f8f95] font-semibold truncate mt-0.5">{lead.project}</p>
                           </div>
                           <span className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] whitespace-nowrap ${lead.stage === 'success' ? 'bg-[#e2f9ee] text-[#107c41]' : 'bg-[#f3f3f5] text-[#444]'
                             }`}>
@@ -795,107 +736,196 @@ function UserPortal() {
             </div>
           )}
 
-          {/* TAB 2: CLIENT WORKSPACE VIEW */}
-          {activeTab === 'workspace' && (
-            <div className="animate-in fade-in duration-300 text-left max-w-screen-xl mx-auto">
+          {/* TAB 2: PROJECT & INQUIRY STATUS TRACKER */}
+          {activeTab === 'status' && (
+            <div className="animate-in fade-in duration-300 text-left max-w-screen-xl mx-auto mb-10">
 
-              {/* Workspace Dashboard Header */}
-              <div className="mb-8 bg-gradient-to-r from-gray-900 via-slate-800 to-black text-white p-8 rounded-3xl shadow-lg relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              {/* Status Header */}
+              <div className="mb-8 bg-gradient-to-r from-sky-900 via-slate-800 to-black text-white p-8 rounded-3xl shadow-lg relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div className="absolute inset-0 bg-white/5 opacity-40 blur-sm pointer-events-none" />
                 <div className="relative z-10">
-                  <span className="text-[11px] font-extrabold tracking-wider uppercase bg-[#1769ff] px-2.5 py-1 rounded-full text-white">Client Portal active</span>
-                  <h2 className="text-[32px] font-black tracking-tight mt-2 leading-none">Tez<span className="text-[#1769ff]">X</span> CRM Workspace</h2>
-                  <p className="text-white/70 text-[13px] font-medium mt-1">Real-time synchronized records representing active deployments.</p>
+                  <span className="text-[11px] font-extrabold tracking-wider uppercase bg-[#1769ff] px-2.5 py-1 rounded-full text-white">Live Status Desk</span>
+                  <h2 className="text-[32px] font-black tracking-tight mt-2 leading-none">Tez<span className="text-[#1769ff]">X</span> Progress Hub</h2>
+                  <p className="text-white/70 text-[13px] font-medium mt-1">Real-time status of your ticket approvals and deliverable progress.</p>
                 </div>
-                <div className="grid grid-cols-3 gap-6 relative z-10 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15">
+                <div className="grid grid-cols-2 gap-6 relative z-10 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15">
                   <div className="text-center">
-                    <span className="text-[11px] font-bold text-white/60 block uppercase">Projects</span>
-                    <span className="text-[20px] font-extrabold text-white">{projects.length}</span>
+                    <span className="text-[11px] font-bold text-white/60 block uppercase font-bold tracking-wider">Inquiry Tickets</span>
+                    <span className="text-[20px] font-extrabold text-white">{leads.length}</span>
                   </div>
-                  <div className="text-center px-4 border-x border-white/10">
-                    <span className="text-[11px] font-bold text-white/60 block uppercase">Budget Monitored</span>
-                    <span className="text-[20px] font-extrabold text-white">${totalBudgetVal.toLocaleString()}</span>
-                  </div>
-                  <div className="text-center">
-                    <span className="text-[11px] font-bold text-white/60 block uppercase">Completed</span>
-                    <span className="text-[20px] font-extrabold text-[#6ffbbe]">{projects.filter(p => p.status === 'Completed').length}</span>
+                  <div className="text-center px-4 border-l border-white/10">
+                    <span className="text-[11px] font-bold text-white/60 block uppercase font-bold tracking-wider font-extrabold text-white">Active Projects</span>
+                    <span className="text-[20px] font-extrabold text-[#6ffbbe]">{projects.length}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Workspace Content Grid */}
+              {/* Progress Tracking Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                {/* Main Progress Board Column (left) */}
+                <div className="lg:col-span-8 flex flex-col gap-8">
+                  
+                  {/* Section 1: Active Projects & Delivery Progress */}
+                  <div className="space-y-4">
+                    <h3 className="text-[18px] font-extrabold text-[#111111] flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[#1769ff]">run_circle</span>
+                      Accepted Projects & Progress
+                    </h3>
+                    
+                    {projects.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {projects.map((project) => {
+                          const pct = getProgressPercentage(project.status);
+                          return (
+                            <div key={project.id} className="bg-white border border-[#ececec] rounded-3xl p-6 shadow-sm hover:shadow-md hover:border-[#1769ff]/20 transition-all flex flex-col justify-between">
+                              <div>
+                                <div className="flex justify-between items-start mb-4">
+                                  <span className="px-2 py-0.5 bg-[#f3f3f5] rounded text-[11px] font-extrabold text-[#111111]">
+                                    🏢 {project.company}
+                                  </span>
+                                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wide uppercase ${
+                                    project.status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                                    project.status === 'In Progress' ? 'bg-[#1769ff]/10 text-[#1769ff]' : 'bg-[#ffb11a]/15 text-[#b27200]'
+                                  }`}>
+                                    {project.status}
+                                  </span>
+                                </div>
 
-                {/* Active Deliverable Projects Column */}
-                <div className="lg:col-span-8 flex flex-col gap-6">
-                  <h3 className="text-[18px] font-extrabold text-[#111111] flex items-center gap-2 mb-1">
-                    <span className="material-symbols-outlined text-[#1769ff]">running_with_errors</span>
-                    Active Deployments & Scopes
-                  </h3>
+                                <h4 className="text-[16px] font-extrabold text-[#111111] mb-2">{project.name}</h4>
+                                {project.description && (
+                                  <p className="text-[12px] text-[#8f8f95] leading-relaxed mb-4 line-clamp-2">{project.description}</p>
+                                )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {projects.map((project) => {
-                      const pct = getProgressPercentage(project.status);
-                      return (
-                        <div key={project.id} className="bg-white border border-[#ececec] rounded-3xl p-6 shadow-sm hover:shadow-md hover:border-[#1769ff]/20 transition-all flex flex-col justify-between">
-                          <div>
-                            <div className="flex justify-between items-start mb-4">
-                              <span className="px-2 py-0.5 bg-[#f3f3f5] rounded text-[11px] font-extrabold text-[#111111]">
-                                🏢 {project.company}
-                              </span>
-                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wide uppercase ${project.status === 'Completed' ? 'bg-[#e2f9ee] text-[#107c41]' :
-                                project.status === 'In Progress' ? 'bg-[#1769ff]/10 text-[#1769ff]' : 'bg-[#ffb11a]/15 text-[#b27200]'
-                                }`}>
-                                {project.status}
-                              </span>
-                            </div>
-
-                            <h4 className="text-[16px] font-extrabold text-[#111111] mb-2">{project.name}</h4>
-                            {project.description && (
-                              <p className="text-[12px] text-[#8f8f95] leading-relaxed mb-4 line-clamp-2">{project.description}</p>
-                            )}
-
-                            {/* Progression Bar */}
-                            <div className="mb-4">
-                              <div className="flex justify-between text-[11px] font-bold text-black mb-1">
-                                <span>Milestone Progress</span>
-                                <span>{pct}%</span>
+                                {/* Progression Bar */}
+                                <div className="mb-4">
+                                  <div className="flex justify-between text-[11px] font-bold text-black mb-1">
+                                    <span>Milestone Progress</span>
+                                    <span>{pct}%</span>
+                                  </div>
+                                  <div className="w-full h-1.5 bg-[#f3f3f5] rounded-full overflow-hidden">
+                                    <div
+                                      className={`h-full rounded-full ${project.status === 'Completed' ? 'bg-[#107c41]' : project.status === 'In Progress' ? 'bg-[#1769ff]' : 'bg-[#ffb11a]'}`}
+                                      style={{ width: `${pct}%` }}
+                                    />
+                                  </div>
+                                </div>
                               </div>
-                              <div className="w-full h-1.5 bg-[#f3f3f5] rounded-full overflow-hidden">
-                                <div
-                                  className={`h-full rounded-full ${project.status === 'Completed' ? 'bg-[#107c41]' :
-                                    project.status === 'In Progress' ? 'bg-[#1769ff]' : 'bg-[#ffb11a]'
-                                    }`}
-                                  style={{ width: `${pct}%` }}
-                                />
+
+                              <div className="grid grid-cols-2 gap-4 border-t border-[#ececec]/50 pt-4 mt-2 text-[12px]">
+                                <div>
+                                  <span className="text-[10px] font-bold text-[#8f8f95] block uppercase">Deal Budget</span>
+                                  <span className="font-extrabold text-[#111111] text-[14px]">{project.budget}</span>
+                                </div>
+                                <div>
+                                  <span className="text-[10px] font-bold text-[#8f8f95] block uppercase">Target Date</span>
+                                  <span className="font-semibold text-black">{project.deadline}</span>
+                                </div>
+                              </div>
+
+                              <div className="mt-4 pt-3 border-t border-[#ececec]/40 flex justify-between items-center text-[12px]">
+                                <span className="font-bold text-[#8f8f95]">Owner Representative:</span>
+                                <span className="font-extrabold text-black">{project.owner}</span>
                               </div>
                             </div>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-4 border-t border-[#ececec]/50 pt-4 mt-2 text-[12px]">
-                            <div>
-                              <span className="text-[10px] font-bold text-[#8f8f95] block uppercase">Deal Budget</span>
-                              <span className="font-extrabold text-[#111111] text-[14px]">{project.budget}</span>
-                            </div>
-                            <div>
-                              <span className="text-[10px] font-bold text-[#8f8f95] block uppercase">Target Date</span>
-                              <span className="font-semibold text-black">{project.deadline}</span>
-                            </div>
-                          </div>
-
-                          <div className="mt-4 pt-3 border-t border-[#ececec]/40 flex justify-between items-center text-[12px]">
-                            <span className="font-bold text-[#8f8f95]">Owner Representative:</span>
-                            <span className="font-extrabold text-black">{project.owner}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="bg-white border border-dashed border-[#ececec] rounded-3xl p-10 text-center text-[#8f8f95] text-[13px] bg-slate-50/20">
+                        <span className="material-symbols-outlined text-[36px] mb-2 text-[#8f8f95]/60">pending_actions</span>
+                        <p className="font-extrabold text-black mb-1">No Accepted Projects Yet</p>
+                        <p className="max-w-xs mx-auto text-[#8f8f95]">Once our core desk approves your inquiry brief, it will spawn here as a development scope.</p>
+                      </div>
+                    )}
                   </div>
+
+                  {/* Section 2: Submitted Inquiries Tickets */}
+                  <div className="space-y-4 pt-4 border-t border-[#ececec]/60">
+                    <h3 className="text-[18px] font-extrabold text-[#111111] flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[#1769ff]">assignment</span>
+                      Inquiry Tickets & Approvals
+                    </h3>
+
+                    {leads.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {leads.map((lead) => {
+                          const step = getStepperStatus(lead.stage);
+                          return (
+                            <div key={lead.id} className="bg-white border border-[#ececec] rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                              <div>
+                                <div className="flex justify-between items-start mb-4">
+                                  <div>
+                                    <p className="text-[10px] font-extrabold text-[#8f8f95] uppercase tracking-wider">REF: #{lead.id.slice(-6).toUpperCase()}</p>
+                                    <h4 className="text-[16px] font-extrabold text-[#111111] mt-1 truncate max-w-[200px]">{lead.company}</h4>
+                                    <p className="text-[12px] text-[#8f8f95] font-semibold">{lead.project}</p>
+                                  </div>
+                                  <span className={`px-2.5 py-1 rounded-full font-bold text-[11px] tracking-wide ${
+                                    lead.stage === 'success' || lead.stage === 'won'
+                                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                      : 'bg-[#f3f3f5] text-[#444]'
+                                  }`}>
+                                    {getStageLabel(lead.stage)}
+                                  </span>
+                                </div>
+
+                                {/* Stepper Tracker */}
+                                <div className="relative pt-6 pb-2">
+                                  <div className="absolute top-0 left-0 w-full h-1 bg-[#f3f3f5] rounded-full">
+                                    <div className="h-full bg-[#1769ff] rounded-full transition-all duration-500" style={{ width: `${step.percent}%` }} />
+                                  </div>
+
+                                  <div className="flex justify-between -mt-3.5 relative">
+                                    <div className="flex flex-col items-center gap-1.5 w-1/3">
+                                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white ring-4 ring-white shadow-sm transition-all duration-300 ${step.label1 === 'completed' || step.label1 === 'active' ? 'bg-[#1769ff]' : 'bg-[#f3f3f5] text-[#8f8f95]'}`}>
+                                        <span className="material-symbols-outlined text-[13px]">check</span>
+                                      </div>
+                                      <span className={`text-[10px] font-extrabold ${step.label1 === 'active' ? 'text-[#1769ff]' : 'text-[#8f8f95]'}`}>Submitted</span>
+                                    </div>
+                                    <div className="flex flex-col items-center gap-1.5 w-1/3">
+                                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white ring-4 ring-white shadow-sm transition-all duration-300 ${step.label2 === 'completed' || step.label2 === 'active' ? 'bg-[#1769ff]' : 'bg-[#f3f3f5] text-[#8f8f95]'}`}>
+                                        {step.label2 === 'completed' ? (
+                                          <span className="material-symbols-outlined text-[13px]">check</span>
+                                        ) : (
+                                          <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                                        )}
+                                      </div>
+                                      <span className={`text-[10px] font-extrabold ${step.label2 === 'active' ? 'text-[#1769ff]' : 'text-[#8f8f95]'}`}>Review</span>
+                                    </div>
+                                    <div className="flex flex-col items-center gap-1.5 w-1/3">
+                                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white ring-4 ring-white shadow-sm transition-all duration-300 ${step.label3 === 'completed' || step.label3 === 'active' ? 'bg-[#1769ff]' : 'bg-[#f3f3f5] text-[#8f8f95]'}`}>
+                                        {step.label3 === 'completed' ? (
+                                          <span className="material-symbols-outlined text-[13px]">check</span>
+                                        ) : (
+                                          <div className="w-1.5 h-1.5 bg-current rounded-full opacity-30" />
+                                        )}
+                                      </div>
+                                      <span className={`text-[10px] font-extrabold ${step.label3 === 'active' ? 'text-[#1769ff]' : 'text-[#8f8f95]'}`}>Meeting Setup</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="mt-6 pt-4 border-t border-[#ececec]/60 flex justify-between items-center text-[12px]">
+                                <span className="font-bold text-[#8f8f95]">{lead.time}</span>
+                                <span className="font-extrabold text-[#1769ff]">Pipeline Sync</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="bg-white border border-dashed border-[#ececec] rounded-3xl p-10 text-center text-[#8f8f95] text-[13px]">
+                        No inquiry tickets found. Visit Inquiry Desk to create one.
+                      </div>
+                    )}
+                  </div>
+
                 </div>
 
-                {/* Assigned Owner Contacts Column */}
+                {/* Assigned Owner Contacts Column (right) */}
                 <div className="lg:col-span-4 flex flex-col gap-6">
-                  <h3 className="text-[18px] font-extrabold text-[#111111] flex items-center gap-2 mb-1">
+                  <h3 className="text-[18px] font-extrabold text-[#111111] flex items-center gap-2">
                     <span className="material-symbols-outlined text-[#1769ff]">engineering</span>
                     Your Tez<span className="text-[#1769ff]">X</span> Roster
                   </h3>
@@ -919,7 +949,6 @@ function UserPortal() {
                         </div>
                       ))
                     ) : (
-                      /* Roster Empty fallback */
                       <div className="text-center py-8 text-[#8f8f95]">
                         <span className="text-2xl mb-2 block">💼</span>
                         <p className="text-[12px]">No team representatives currently synced. Staff updates show here.</p>
