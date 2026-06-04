@@ -111,6 +111,76 @@ function UserPortal() {
     }, 3000);
   };
 
+  // Payment Desk States
+  const [invoices, setInvoices] = useState([
+    { id: 'inv-8910', name: 'Pipeline Automation Setup', amount: 5000, status: 'Pending', dueDate: 'June 15, 2026', company: 'NexGen Tech' },
+    { id: 'inv-4432', name: 'Postgres Cloud Sync setup', amount: 7500, status: 'Pending', dueDate: 'June 28, 2026', company: 'ApexLabs' },
+    { id: 'inv-1092', name: 'Strategic Consulting Brief', amount: 3200, status: 'Paid', dueDate: 'May 12, 2026', company: 'ApexLabs', paidDate: 'May 10, 2026' },
+  ]);
+
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [cardForm, setCardForm] = useState({ name: '', number: '', expiry: '', cvv: '' });
+  const [cardErrors, setCardErrors] = useState({});
+
+  const handlePaymentSubmit = (e) => {
+    e.preventDefault();
+    if (!selectedInvoice) return;
+
+    // Validate card inputs
+    const errors = {};
+    if (!cardForm.name.trim()) errors.name = 'Cardholder Name is required';
+    
+    const sanitizedNumber = cardForm.number.replace(/\s+/g, '');
+    if (!sanitizedNumber) {
+      errors.number = 'Card Number is required';
+    } else if (!/^\d{16}$/.test(sanitizedNumber)) {
+      errors.number = 'Must be a 16-digit card number';
+    }
+
+    if (!cardForm.expiry.trim()) {
+      errors.expiry = 'Expiry Date is required';
+    } else if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(cardForm.expiry)) {
+      errors.expiry = 'Use MM/YY format';
+    }
+
+    if (!cardForm.cvv.trim()) {
+      errors.cvv = 'CVV is required';
+    } else if (!/^\d{3,4}$/.test(cardForm.cvv)) {
+      errors.cvv = 'Must be 3 or 4 digits';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setCardErrors(errors);
+      return;
+    }
+
+    setCardErrors({});
+    setPaymentLoading(true);
+
+    // Simulate payment gateway processing
+    setTimeout(() => {
+      setPaymentLoading(false);
+      setPaymentSuccess(true);
+      
+      // Update invoice status in state
+      setInvoices(prev => prev.map(inv => {
+        if (inv.id === selectedInvoice.id) {
+          return { ...inv, status: 'Paid', paidDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) };
+        }
+        return inv;
+      }));
+
+      // Auto-hide success modal and reset form
+      setTimeout(() => {
+        setPaymentSuccess(false);
+        setSelectedInvoice(null);
+        setCardForm({ name: '', number: '', expiry: '', cvv: '' });
+      }, 3500);
+    }, 2000);
+  };
+
   const handleFormSubmit = (e) => {
     e.preventDefault();
 
@@ -359,6 +429,16 @@ function UserPortal() {
                 <span className="material-symbols-outlined text-[18px]">track_changes</span>
                 <span className="hidden sm:inline">Project Status</span>
               </button>
+              <button
+                onClick={() => setActiveTab('payments')}
+                className={`px-3 sm:px-5 py-2 rounded-lg text-[13px] sm:text-[14px] font-extrabold transition-all flex items-center gap-1.5 ${activeTab === 'payments'
+                  ? 'bg-white shadow-sm text-[#1769ff]'
+                  : 'text-[#8f8f95] hover:bg-black/5 hover:text-black'
+                  }`}
+              >
+                <span className="material-symbols-outlined text-[18px]">payments</span>
+                <span className="hidden sm:inline">Payments</span>
+              </button>
             </div>
 
             {/* Action buttons - Icon only on mobile to save layout spacing */}
@@ -392,16 +472,20 @@ function UserPortal() {
                   <h1 className="text-[32px] sm:text-[38px] font-black tracking-tight mt-3 leading-none text-white">Welcome to your Portal</h1>
                   <p className="text-white/80 text-[13px] sm:text-[14px] font-medium mt-2">Submit briefs and track your active inquiries in real-time.</p>
                 </div>
-                <div className="relative z-10 flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/15">
+                <div className="relative z-10 flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15">
                   <div className="text-center">
-                    <span className="text-[10px] font-bold text-white/70 block uppercase font-black tracking-wider">Active Inquiries</span>
-                    <span className="text-[20px] font-black text-white">{leads.length}</span>
+                    <span className="text-[10px] font-bold text-white/70 block uppercase">Inquiries</span>
+                    <span className="text-[18px] font-black text-white">{leads.length}</span>
+                  </div>
+                  <div className="text-center px-4 border-l border-white/10">
+                    <span className="text-[10px] font-bold text-white/70 block uppercase font-black tracking-wider">Unpaid Invoices</span>
+                    <span className="text-[18px] font-black text-white">{invoices.filter(i => i.status === 'Pending').length}</span>
                   </div>
                 </div>
               </div>
 
               {/* Bento Card Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Inquiry card */}
                 <div className="bg-white border border-[#ececec] rounded-[28px] p-6 shadow-sm hover:shadow-md hover:border-[#1769ff]/30 transition-all flex flex-col justify-between group h-[220px]">
                   <div className="flex justify-between items-start">
@@ -439,6 +523,26 @@ function UserPortal() {
                     className="w-full py-2.5 bg-[#f3f3f5] hover:bg-[#1769ff] hover:text-white text-black hover:text-white font-extrabold text-[12px] rounded-xl transition-all cursor-pointer border-none"
                   >
                     Check Project Status
+                  </button>
+                </div>
+
+                {/* Payments card */}
+                <div className="bg-white border border-[#ececec] rounded-[28px] p-6 shadow-sm hover:shadow-md hover:border-[#1769ff]/30 transition-all flex flex-col justify-between group h-[220px]">
+                  <div className="flex justify-between items-start">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center group-hover:scale-105 transition-transform flex-shrink-0">
+                      <span className="material-symbols-outlined text-[24px]">payments</span>
+                    </div>
+                    <span className="text-[10px] font-black text-[#8f8f95] uppercase tracking-wider">billing center</span>
+                  </div>
+                  <div>
+                    <h4 className="text-[16px] sm:text-[18px] font-black text-black leading-tight">Billing & Payments</h4>
+                    <p className="text-[12px] text-[#8f8f95] mt-1 leading-snug">Review active invoices, check past payments, and complete secure checkout transactions.</p>
+                  </div>
+                  <button
+                    onClick={() => setActiveTab('payments')}
+                    className="w-full py-2.5 bg-[#f3f3f5] hover:bg-[#1769ff] hover:text-white text-black hover:text-white font-extrabold text-[12px] rounded-xl transition-all cursor-pointer border-none"
+                  >
+                    Manage Payments
                   </button>
                 </div>
               </div>
@@ -954,6 +1058,325 @@ function UserPortal() {
                         <p className="text-[12px]">No team representatives currently synced. Staff updates show here.</p>
                       </div>
                     )}
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
+          {/* TAB 3: BILLING & SECURE PAYMENTS */}
+          {activeTab === 'payments' && (
+            <div className="animate-in fade-in duration-300 text-left max-w-screen-xl mx-auto mb-10">
+              
+              {/* Billing Header */}
+              <div className="mb-8 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white p-8 rounded-3xl shadow-lg relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div className="absolute inset-0 bg-white/5 opacity-30 blur-sm pointer-events-none" />
+                <div className="relative z-10">
+                  <span className="text-[11px] font-extrabold tracking-wider uppercase bg-amber-500 px-2.5 py-1 rounded-full text-black">Secure Invoicing</span>
+                  <h2 className="text-[32px] font-black tracking-tight mt-2 leading-none">Billing Desk</h2>
+                  <p className="text-white/70 text-[13px] font-medium mt-1">Review active invoices and settle payments via our end-to-end encrypted terminal.</p>
+                </div>
+                
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-6 relative z-10 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15">
+                  <div className="text-center">
+                    <span className="text-[10px] font-bold text-white/60 block uppercase">Outstanding</span>
+                    <span className="text-[18px] font-extrabold text-[#ffb11a]">
+                      ${invoices.filter(i => i.status === 'Pending').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="text-center px-4 border-x border-white/10">
+                    <span className="text-[10px] font-bold text-white/60 block uppercase">Settled</span>
+                    <span className="text-[18px] font-extrabold text-[#6ffbbe]">
+                      ${invoices.filter(i => i.status === 'Paid').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="text-center">
+                    <span className="text-[10px] font-bold text-white/60 block uppercase">Tickets</span>
+                    <span className="text-[18px] font-extrabold text-white">{invoices.length}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Main Content Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                {/* Left Side: Invoice List */}
+                <div className="lg:col-span-7 flex flex-col gap-6">
+                  
+                  {/* Pending Invoices */}
+                  <div className="space-y-4">
+                    <h3 className="text-[16px] font-extrabold text-[#111111] flex items-center gap-2">
+                      <span className="material-symbols-outlined text-amber-500">pending_actions</span>
+                      Unsettled Invoices
+                    </h3>
+                    
+                    {invoices.filter(i => i.status === 'Pending').length > 0 ? (
+                      <div className="space-y-4">
+                        {invoices.filter(i => i.status === 'Pending').map(inv => (
+                          <div key={inv.id} className="bg-white border border-[#ececec] rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                              <div className="flex items-center gap-2 mb-1.5">
+                                <span className="px-2 py-0.5 bg-[#f3f3f5] rounded text-[10px] font-extrabold text-[#8f8f95]">
+                                  #{inv.id.toUpperCase()}
+                                </span>
+                                <span className="text-[12px] font-bold text-[#8f8f95]">Due: {inv.dueDate}</span>
+                              </div>
+                              <h4 className="text-[14px] font-extrabold text-black leading-snug">{inv.name}</h4>
+                              <p className="text-[11px] text-[#8f8f95] font-semibold mt-0.5">Brief Account: {inv.company}</p>
+                            </div>
+                            
+                            <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+                              <span className="text-[16px] font-black text-black">${inv.amount.toLocaleString()}.00</span>
+                              <button
+                                onClick={() => {
+                                  setSelectedInvoice(inv);
+                                }}
+                                className={`px-4 py-2 text-[12px] font-extrabold rounded-xl transition-all cursor-pointer border-none flex items-center gap-1 bg-black text-white hover:bg-black/90 active:scale-[0.98]`}
+                              >
+                                <span className="material-symbols-outlined text-[16px]">credit_card</span>
+                                <span>Pay Now</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="bg-white border border-dashed border-[#ececec] rounded-2xl p-8 text-center text-[#8f8f95] text-[13px] bg-slate-50/20">
+                        No outstanding invoices. Your account balance is completely settled.
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Paid History */}
+                  <div className="space-y-4 pt-4 border-t border-[#ececec]/60">
+                    <h3 className="text-[16px] font-extrabold text-[#111111] flex items-center gap-2">
+                      <span className="material-symbols-outlined text-emerald-600">receipt_long</span>
+                      Settled Invoices & Receipts
+                    </h3>
+                    
+                    {invoices.filter(i => i.status === 'Paid').length > 0 ? (
+                      <div className="space-y-3">
+                        {invoices.filter(i => i.status === 'Paid').map(inv => (
+                          <div key={inv.id} className="bg-[#fcfdfd] border border-[#ececec] rounded-2xl p-4 flex justify-between items-center text-[13px]">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-extrabold text-black">{inv.name}</h4>
+                                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded text-[9px] font-black tracking-wide uppercase border border-emerald-200">
+                                  Paid
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-[#8f8f95] font-semibold mt-1">Receipt ID: #{inv.id.toUpperCase()} • Settle Date: {inv.paidDate || 'Recently'}</p>
+                            </div>
+                            <span className="font-bold text-emerald-600">${inv.amount.toLocaleString()}.00</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-6 text-[#8f8f95] text-[12px]">
+                        No payment history found. Settle pending invoices to generate receipts.
+                      </div>
+                    )}
+                  </div>
+                  
+                </div>
+                
+                {/* Right Side: Secure Checkout Terminal */}
+                <div className="lg:col-span-5">
+                  <div className="bg-white border border-[#ececec] rounded-3xl p-6 shadow-sm flex flex-col gap-6 relative">
+                    
+                    {/* Security Badge */}
+                    <div className="flex justify-between items-center pb-4 border-b border-[#ececec]">
+                      <h3 className="text-[15px] font-extrabold text-black flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-[#1769ff] text-[20px]">lock</span>
+                        Secure Terminal
+                      </h3>
+                      <span className="text-[10px] font-bold text-slate-400 font-mono tracking-widest uppercase">AES-256 Bit</span>
+                    </div>
+
+                    {selectedInvoice ? (
+                      <form onSubmit={handlePaymentSubmit} className="space-y-5">
+                        
+                        {/* Selected Invoice details */}
+                        <div className="bg-[#f0f9ff] border border-[#e0f2fe] rounded-2xl p-4 text-[13px] text-[#0369a1]">
+                          <span className="text-[10px] font-black block uppercase text-[#0284c7] tracking-wider mb-1">Paying Ticket</span>
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h5 className="font-bold text-[#0369a1]">{selectedInvoice.name}</h5>
+                              <p className="text-[11px] text-[#0284c7] font-semibold mt-0.5">Reference: #{selectedInvoice.id.toUpperCase()}</p>
+                            </div>
+                            <span className="font-black text-[15px] text-[#0369a1]">${selectedInvoice.amount.toLocaleString()}.00</span>
+                          </div>
+                        </div>
+
+                        {/* HIGH FIDELITY INTERACTIVE CARD VISUAL */}
+                        <div className="w-full aspect-[1.586/1] bg-gradient-to-tr from-slate-950 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 flex flex-col justify-between shadow-lg relative overflow-hidden select-none">
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl pointer-events-none" />
+                          <div className="absolute -left-10 -bottom-10 w-24 h-24 bg-indigo-500/10 rounded-full blur-xl pointer-events-none" />
+                          
+                          {/* Card Top Row */}
+                          <div className="flex justify-between items-start">
+                            <span className="text-[13px] font-bold tracking-tight text-white/50 uppercase">TezX Card</span>
+                            <div className="w-9 h-7 bg-gradient-to-br from-amber-200 to-amber-400 rounded-md border border-amber-300 flex items-center justify-center opacity-80">
+                              <div className="w-5 h-4 border border-amber-500/20 rounded-sm" />
+                            </div>
+                          </div>
+                          
+                          {/* Card Number */}
+                          <div className="text-[18px] sm:text-[20px] font-black tracking-[0.15em] font-mono text-center my-4 select-all text-white/95">
+                            {cardForm.number ? cardForm.number : '•••• •••• •••• ••••'}
+                          </div>
+                          
+                          {/* Card Bottom Row */}
+                          <div className="flex justify-between items-end">
+                            <div className="min-w-0 pr-4">
+                              <span className="text-[8px] font-bold text-white/40 block uppercase tracking-wider">Cardholder</span>
+                              <span className="text-[12px] font-black tracking-wide truncate block text-white/90 uppercase">
+                                {cardForm.name ? cardForm.name : 'Cardholder Name'}
+                              </span>
+                            </div>
+                            <div className="flex gap-4 flex-shrink-0">
+                              <div>
+                                <span className="text-[8px] font-bold text-white/40 block uppercase tracking-wider">Expires</span>
+                                <span className="text-[12px] font-bold tracking-wide block text-white/90">
+                                  {cardForm.expiry ? cardForm.expiry : 'MM/YY'}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-[8px] font-bold text-white/40 block uppercase tracking-wider">CVV</span>
+                                <span className="text-[12px] font-bold tracking-wide block text-white/90">
+                                  {cardForm.cvv ? cardForm.cvv : '•••'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Input Fields */}
+                        <div className="space-y-3 text-left">
+                          
+                          {/* Cardholder Name */}
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-[#8f8f95] uppercase">Cardholder Name</label>
+                            <input
+                              type="text"
+                              placeholder="Alex Rivers"
+                              value={cardForm.name}
+                              onChange={(e) => setCardForm({ ...cardForm, name: e.target.value })}
+                              className={`w-full h-10 px-3 bg-white border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all text-[13px] ${cardErrors.name ? 'border-[#ba1a1a] ring-1 ring-[#ba1a1a]' : 'border-[#ececec]'}`}
+                            />
+                            {cardErrors.name && <span className="text-[11px] text-[#ba1a1a] font-bold">{cardErrors.name}</span>}
+                          </div>
+
+                          {/* Card Number */}
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-[#8f8f95] uppercase">Card Number</label>
+                            <input
+                              type="text"
+                              maxLength="19"
+                              placeholder="0000 0000 0000 0000"
+                              value={cardForm.number}
+                              onChange={(e) => {
+                                const val = e.target.value.replace(/\D/g, '');
+                                const formatted = val.match(/.{1,4}/g)?.join(' ') || '';
+                                setCardForm({ ...cardForm, number: formatted });
+                              }}
+                              className={`w-full h-10 px-3 bg-white border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all text-[13px] font-mono ${cardErrors.number ? 'border-[#ba1a1a] ring-1 ring-[#ba1a1a]' : 'border-[#ececec]'}`}
+                            />
+                            {cardErrors.number && <span className="text-[11px] text-[#ba1a1a] font-bold">{cardErrors.number}</span>}
+                          </div>
+
+                          {/* Expiry & CVV */}
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-bold text-[#8f8f95] uppercase">Expiration Date</label>
+                              <input
+                                type="text"
+                                maxLength="5"
+                                placeholder="MM/YY"
+                                value={cardForm.expiry}
+                                onChange={(e) => {
+                                  let val = e.target.value.replace(/\D/g, '');
+                                  if (val.length > 2) {
+                                    val = `${val.slice(0, 2)}/${val.slice(2, 4)}`;
+                                  }
+                                  setCardForm({ ...cardForm, expiry: val });
+                                }}
+                                className={`w-full h-10 px-3 bg-white border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all text-[13px] ${cardErrors.expiry ? 'border-[#ba1a1a] ring-1 ring-[#ba1a1a]' : 'border-[#ececec]'}`}
+                              />
+                              {cardErrors.expiry && <span className="text-[11px] text-[#ba1a1a] font-bold">{cardErrors.expiry}</span>}
+                            </div>
+                            
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-bold text-[#8f8f95] uppercase">CVV / CVC</label>
+                              <input
+                                type="password"
+                                maxLength="4"
+                                placeholder="123"
+                                value={cardForm.cvv}
+                                onChange={(e) => setCardForm({ ...cardForm, cvv: e.target.value.replace(/\D/g, '') })}
+                                className={`w-full h-10 px-3 bg-white border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all text-[13px] font-mono ${cardErrors.cvv ? 'border-[#ba1a1a] ring-1 ring-[#ba1a1a]' : 'border-[#ececec]'}`}
+                              />
+                              {cardErrors.cvv && <span className="text-[11px] text-[#ba1a1a] font-bold">{cardErrors.cvv}</span>}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Pay Button */}
+                        <button
+                          type="submit"
+                          disabled={paymentLoading}
+                          className="w-full h-12 bg-[#1769ff] hover:bg-[#0054e6] text-white font-extrabold text-[13px] rounded-xl transition-all shadow-md shadow-[#1769ff]/10 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer border-none active:scale-[0.99]"
+                        >
+                          {paymentLoading ? (
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <>
+                              <span className="material-symbols-outlined text-[18px]">verified_user</span>
+                              <span>Pay ${selectedInvoice.amount.toLocaleString()}.00 Securely</span>
+                            </>
+                          )}
+                        </button>
+                        
+                        <button
+                          type="button"
+                          onClick={() => setSelectedInvoice(null)}
+                          className="w-full text-center text-[12px] font-bold text-[#8f8f95] hover:text-black transition-colors bg-transparent border-none cursor-pointer p-0"
+                        >
+                          Cancel Transaction
+                        </button>
+                      </form>
+                    ) : (
+                      <div className="text-center py-16 text-[#8f8f95] flex flex-col items-center justify-center gap-2.5">
+                        <div className="w-14 h-14 bg-indigo-50 border border-indigo-100 text-indigo-500 rounded-2xl flex items-center justify-center shadow-sm">
+                          <span className="material-symbols-outlined text-[28px]">payments</span>
+                        </div>
+                        <h4 className="font-extrabold text-black text-[15px] mt-2">Ready to Checkout</h4>
+                        <p className="max-w-xs text-[12px] leading-relaxed text-[#8f8f95]">Select an unsettled invoice from the list on the left to initialize the secure payment gateway terminal.</p>
+                      </div>
+                    )}
+                    
+                    {/* Floating Success Overlay Modal */}
+                    {paymentSuccess && (
+                      <div className="absolute inset-0 bg-white/95 rounded-3xl flex flex-col items-center justify-center text-center p-6 animate-in fade-in duration-300 z-20">
+                        <div className="w-16 h-16 bg-[#e2f9ee] border border-[#6ee7b7]/30 text-[#107c41] rounded-full flex items-center justify-center mb-4 shadow-sm">
+                          <span className="material-symbols-outlined text-[36px] animate-bounce">check_circle</span>
+                        </div>
+                        <h4 className="font-black text-[18px] text-black">Payment Succeeded!</h4>
+                        <p className="text-[12px] text-[#8f8f95] mt-1.5 max-w-[280px]">
+                          Invoice ID <strong>#{selectedInvoice?.id.toUpperCase()}</strong> has been settled. Your receipt was generated.
+                        </p>
+                        <div className="bg-[#f3f3f5] rounded-xl p-3 border border-[#ececec]/60 w-full mt-6 text-left text-[11px] font-mono space-y-1 text-slate-600 select-all">
+                          <div>TRANSACTION: SUCCESS</div>
+                          <div>AMOUNT: ${selectedInvoice?.amount.toLocaleString()}.00 USD</div>
+                          <div>STATUS: SETTLED IN CRM</div>
+                          <div>AUTH REF: {Math.random().toString(36).substring(2, 8).toUpperCase()}</div>
+                        </div>
+                      </div>
+                    )}
+                    
                   </div>
                 </div>
 
