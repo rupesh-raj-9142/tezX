@@ -10,16 +10,6 @@ import {
   ReferenceDot
 } from 'recharts';
 
-const DATA = [
-  { name: 'Jan', purple: 25, blue: 40 },
-  { name: 'Feb', purple: 45, blue: 32 },
-  { name: 'Mar', purple: 35, blue: 48 },
-  { name: 'Apr', purple: 58, blue: 42 },
-  { name: 'May', purple: 48, blue: 62 },
-  { name: 'Jun', purple: 78, blue: 52 }, // Peak for purple!
-  { name: 'Jul', purple: 62, blue: 68 },
-];
-
 const renderCustomDotLabel = (props) => {
   const { cx, cy } = props;
   return (
@@ -36,19 +26,70 @@ const renderCustomDotLabel = (props) => {
   );
 };
 
-function AnalyticsChart() {
+function AnalyticsChart({ leads = [], projects = [] }) {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
+
+  // Initialize counts for each month
+  const monthlyCounts = months.reduce((acc, m) => {
+    acc[m] = { purple: 0, blue: 0 }; // purple = leads, blue = projects
+    return acc;
+  }, {});
+
+  // Aggregate leads (purple) by month from created_at
+  leads.forEach(l => {
+    const dateStr = l.created_at || l.time;
+    if (!dateStr) return;
+    const date = new Date(dateStr);
+    if (!isNaN(date.getTime())) {
+      const mName = date.toLocaleString('en-US', { month: 'short' });
+      if (monthlyCounts[mName]) {
+        monthlyCounts[mName].purple += 1;
+      }
+    }
+  });
+
+  // Aggregate projects (blue) by month from created_at
+  projects.forEach(p => {
+    const dateStr = p.created_at || p.deadline;
+    if (!dateStr) return;
+    const date = new Date(dateStr);
+    if (!isNaN(date.getTime())) {
+      const mName = date.toLocaleString('en-US', { month: 'short' });
+      if (monthlyCounts[mName]) {
+        monthlyCounts[mName].blue += 1;
+      }
+    }
+  });
+
+  // Map to Recharts DATA format
+  const chartData = months.map(name => ({
+    name,
+    purple: monthlyCounts[name].purple,
+    blue: monthlyCounts[name].blue
+  }));
+
+  // Find peak (max purple value) dynamically for ReferenceDot positioning
+  let maxPurpleVal = 0;
+  let maxPurpleMonth = null;
+  chartData.forEach(d => {
+    if (d.purple > maxPurpleVal) {
+      maxPurpleVal = d.purple;
+      maxPurpleMonth = d.name;
+    }
+  });
+
   return (
     <div className="flex flex-col items-start w-full text-left pt-6">
       {/* Title */}
       <h3 className="text-[18px] font-bold text-[#111111] mb-1">Statistics</h3>
       <p className="text-[13px] text-[#8f8f95] leading-relaxed mb-6">
-        Track the statistics of your projects.
+        Track the statistics of your projects and leads.
       </p>
 
       {/* Chart Canvas */}
       <div className="w-full h-[220px] relative -ml-6">
         <ResponsiveContainer width="105%" height="100%">
-          <AreaChart data={DATA} margin={{ top: 20, right: 20, left: 0, bottom: 0 }}>
+          <AreaChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 0 }}>
             {/* Soft Gradients */}
             <defs>
               <linearGradient id="purpleGrad" x1="0" y1="0" x2="0" y2="1">
@@ -99,10 +140,11 @@ function AnalyticsChart() {
               itemStyle={{ fontSize: '12px', color: '#e2dfff' }}
             />
 
-            {/* Purple Area Chart (Muted fill) */}
+            {/* Purple Area Chart (Leads) */}
             <Area 
               type="monotone" 
               dataKey="purple" 
+              name="Leads"
               stroke="#6d3df5" 
               strokeWidth={3} 
               fillOpacity={1} 
@@ -111,10 +153,11 @@ function AnalyticsChart() {
               activeDot={{ r: 6, strokeWidth: 0, fill: '#6d3df5' }}
             />
 
-            {/* Blue Line Chart */}
+            {/* Blue Line Chart (Projects) */}
             <Area 
               type="monotone" 
               dataKey="blue" 
+              name="Projects"
               stroke="#1769ff" 
               strokeWidth={3} 
               fillOpacity={1} 
@@ -123,16 +166,18 @@ function AnalyticsChart() {
               activeDot={{ r: 6, strokeWidth: 0, fill: '#1769ff' }}
             />
 
-            {/* Highlight Peak Dot */}
-            <ReferenceDot
-              x="Jun"
-              y={78}
-              r={5}
-              fill="#111111"
-              stroke="#ffffff"
-              strokeWidth={2.5}
-              label={renderCustomDotLabel}
-            />
+            {/* Highlight Peak Dot conditionally */}
+            {maxPurpleVal > 0 && (
+              <ReferenceDot
+                x={maxPurpleMonth}
+                y={maxPurpleVal}
+                r={5}
+                fill="#111111"
+                stroke="#ffffff"
+                strokeWidth={2.5}
+                label={renderCustomDotLabel}
+              />
+            )}
           </AreaChart>
         </ResponsiveContainer>
       </div>

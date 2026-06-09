@@ -417,9 +417,24 @@ function Scheduler({ leads = [], onUpdateLead, leadContext, clearLeadContext, ho
             <h3 className="text-[16px] font-black text-black">Active Booked Meetings</h3>
             <p className="text-[12px] text-[#8f8f95]">Roster of booked sync sessions managed collaboratively by admin desk.</p>
           </div>
-          <span className="text-[11px] font-extrabold text-[#1769ff] uppercase tracking-wider">
-            Total Sessions: {meetings.length}
-          </span>
+          <div className="flex items-center gap-sm">
+            {meetings.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to cancel and remove all scheduled meetings?')) {
+                    setMeetings([]);
+                  }
+                }}
+                className="px-3 py-1.5 rounded-lg border border-[#ba1a1a]/30 hover:bg-[#ffebee] text-[#ba1a1a] font-bold text-[11px] transition-colors cursor-pointer"
+              >
+                Clear All
+              </button>
+            )}
+            <span className="text-[11px] font-extrabold text-[#1769ff] uppercase tracking-wider">
+              Total Sessions: {meetings.length}
+            </span>
+          </div>
         </div>
 
         {meetings.length > 0 ? (

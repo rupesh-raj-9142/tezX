@@ -55,7 +55,7 @@ const TeamsIcon = ({ className = "w-7 h-7" }) => (
   </svg>
 );
 
-function SyncApps() {
+function SyncApps({ peopleCount = 144 }) {
   const [isMobile, setIsMobile] = useState(false);
 
   // Responsiveness tracker
@@ -189,7 +189,7 @@ function SyncApps() {
         <div className="flex items-center gap-3">
           <div className="w-2.5 h-2.5 rounded-full bg-[#107C41] animate-pulse" />
           <p className="text-[13px] text-[#444] font-medium">
-            <span className="font-bold text-[#111111]">Synced Applications:</span> Slack added 144 contacts
+            <span className="font-bold text-[#111111]">Synced Applications:</span> Slack added {peopleCount} contacts
           </p>
         </div>
         <a 

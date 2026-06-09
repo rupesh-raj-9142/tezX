@@ -32,27 +32,9 @@ function AdminPortal() {
   const [activeChatMember, setActiveChatMember] = useState(null);
   const [activeHostContext, setActiveHostContext] = useState(null);
 
-  // Shared meetings state with localStorage sync
-  const [meetings, setMeetings] = useState(() => {
-    try {
-      const saved = localStorage.getItem('tezx_meetings');
-      if (saved && saved !== 'undefined') return JSON.parse(saved);
-    } catch (e) {
-      console.error("Failed to parse tezx_meetings:", e);
-    }
-    return [];
-  });
+  const [initialSyncDone, setInitialSyncDone] = useState(false);
 
-  useEffect(() => {
-    localStorage.setItem('tezx_meetings', JSON.stringify(meetings));
-  }, [meetings]);
-
-  const handleNavigateWithContext = (feature, lead) => {
-    setActiveLeadContext(lead || null);
-    setActiveFeature(feature);
-  };
-
-  // Leads State with LocalStorage persistence (robust parsing)
+  // 1. Leads State with LocalStorage persistence (robust parsing)
   const [leads, setLeads] = useState(() => {
     try {
       const saved = localStorage.getItem('tezx_leads');
@@ -65,7 +47,7 @@ function AdminPortal() {
     return [];
   });
 
-  // People State
+  // 2. People State
   const [people, setPeople] = useState(() => {
     try {
       const saved = localStorage.getItem('tezx_people');
@@ -78,11 +60,7 @@ function AdminPortal() {
     return [];
   });
 
-  useEffect(() => {
-    localStorage.setItem('tezx_people', JSON.stringify(people));
-  }, [people]);
-
-  // Companies State
+  // 3. Companies State
   const [companies, setCompanies] = useState(() => {
     try {
       const saved = localStorage.getItem('tezx_companies');
@@ -95,11 +73,7 @@ function AdminPortal() {
     return [];
   });
 
-  useEffect(() => {
-    localStorage.setItem('tezx_companies', JSON.stringify(companies));
-  }, [companies]);
-
-  // Projects State
+  // 4. Projects State
   const [projects, setProjects] = useState(() => {
     try {
       const saved = localStorage.getItem('tezx_projects');
@@ -112,9 +86,59 @@ function AdminPortal() {
     return [];
   });
 
+  // 5. Shared meetings state with localStorage sync
+  const [meetings, setMeetings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('tezx_meetings');
+      if (saved && saved !== 'undefined') return JSON.parse(saved);
+    } catch (e) {
+      console.error("Failed to parse tezx_meetings:", e);
+    }
+    return [];
+  });
+
+  // Sync states to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('tezx_leads', JSON.stringify(leads));
+    } catch (e) {
+      console.error("Failed to save tezx_leads to localStorage:", e);
+    }
+  }, [leads]);
+
+  useEffect(() => {
+    localStorage.setItem('tezx_people', JSON.stringify(people));
+  }, [people]);
+
+  useEffect(() => {
+    localStorage.setItem('tezx_companies', JSON.stringify(companies));
+  }, [companies]);
+
   useEffect(() => {
     localStorage.setItem('tezx_projects', JSON.stringify(projects));
   }, [projects]);
+
+  useEffect(() => {
+    localStorage.setItem('tezx_meetings', JSON.stringify(meetings));
+  }, [meetings]);
+
+  // Clean up any orphaned or dummy meetings whose associated leads don't exist in Supabase leads database
+  useEffect(() => {
+    if (initialSyncDone) {
+      setMeetings(prev => {
+        const filtered = prev.filter(m => leads.some(l => l.id === m.leadId));
+        if (filtered.length !== prev.length) {
+          return filtered;
+        }
+        return prev;
+      });
+    }
+  }, [leads, initialSyncDone]);
+
+  const handleNavigateWithContext = (feature, lead) => {
+    setActiveLeadContext(lead || null);
+    setActiveFeature(feature);
+  };
 
   // Fetch live database lists from Supabase Postgres on mount with 5-second polling sync
   useEffect(() => {
@@ -158,6 +182,7 @@ function AdminPortal() {
       } catch (e) {
         console.error("Projects sync failed:", e);
       }
+      setInitialSyncDone(true);
     };
 
     syncDbWithSupabase();
@@ -321,10 +346,7 @@ function AdminPortal() {
   const [newLeadForm, setNewLeadForm] = useState({
     company: '',
     project: '',
-    category: 'Enterprise',
     stage: 'new',
-    amount: '',
-    urgent: false,
     contactName: '',
     contactEmail: '',
     contactPhone: '',
@@ -378,13 +400,13 @@ function AdminPortal() {
       id: `lead-${Date.now()}`,
       company: newLeadForm.company.trim(),
       project: newLeadForm.project.trim(),
-      category: newLeadForm.category,
+      category: 'Custom',
       stage: newLeadForm.stage,
-      urgent: newLeadForm.urgent,
+      urgent: false,
       time: newLeadForm.stage === 'meeting-scheduled' ? 'Today @ 3:00 PM' : 'Just now',
       avatar: companyInitials || 'LD',
       avatarType: 'text',
-      amount: newLeadForm.stage === 'success' ? (newLeadForm.amount.startsWith('$') ? newLeadForm.amount : `$${newLeadForm.amount}`) : (newLeadForm.amount ? `$${newLeadForm.amount}` : undefined),
+      amount: '',
       contactName: newLeadForm.contactName.trim(),
       contactEmail: newLeadForm.contactEmail.trim(),
       contactPhone: newLeadForm.contactPhone.trim(),
@@ -397,13 +419,13 @@ function AdminPortal() {
         id: newlyCreated.id,
         company: newlyCreated.company,
         project: newlyCreated.project,
-        category: newlyCreated.category,
+        category: 'Custom',
         stage: newlyCreated.stage,
         time: newlyCreated.time,
         avatar: newlyCreated.avatar,
         avatar_type: newlyCreated.avatarType, // Postgres column
-        amount: newlyCreated.amount,
-        urgent: newlyCreated.urgent,
+        amount: '',
+        urgent: false,
         contact_name: newlyCreated.contactName,
         contact_email: newlyCreated.contactEmail,
         contact_phone: newlyCreated.contactPhone,
@@ -446,10 +468,7 @@ function AdminPortal() {
     setNewLeadForm({
       company: '',
       project: '',
-      category: 'Enterprise',
       stage: 'new',
-      amount: '',
-      urgent: false,
       contactName: '',
       contactEmail: '',
       contactPhone: '',
@@ -590,8 +609,8 @@ function AdminPortal() {
             {activeFeature === 'dashboard' && (
               <div className="animate-in fade-in duration-300">
                 <HeroSection onAddLead={() => setIsNewLeadModalOpen(true)} />
-                <SyncApps />
-                <StatsCards />
+                <SyncApps peopleCount={people.length} />
+                <StatsCards leads={leads} projects={projects} people={people} companies={companies} />
               </div>
             )}
 
@@ -699,7 +718,7 @@ function AdminPortal() {
 
                         {/* Avatar */}
                         <div className="w-28 h-28 rounded-full overflow-hidden bg-white border-4 border-white shadow-lg relative z-10 mt-14 group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
-                          <img src={member.avatar} alt={member.name} className="w-full h-full object-cover rounded-full" />
+                           <img src={member.avatar} alt={member.name} className="w-full h-full object-cover rounded-full" />
                         </div>
 
                         {/* Info */}
@@ -751,10 +770,15 @@ function AdminPortal() {
                       </div>
                     ))}
                   </div>
+                  {TEAM.length === 0 && (
+                    <div className="bg-white border border-dashed border-[#ececec] rounded-[32px] p-12 text-center text-[#8f8f95] text-[14px]">
+                      No active team members configured.
+                    </div>
+                  )}
 
                   {/* Team Analytics & Performance Statistics */}
                   <div className="bg-white border border-[#ececec] rounded-[32px] p-8 shadow-sm">
-                    <AnalyticsChart />
+                    <AnalyticsChart leads={leads} projects={projects} />
                   </div>
                 </div>
               </div>
@@ -818,65 +842,31 @@ function AdminPortal() {
                   {formErrors.project && <span className="text-[12px] text-error font-bold">{formErrors.project}</span>}
                 </div>
 
-                {/* Category selector (Pills) */}
+                {/* Stage Progression */}
                 <div className="flex flex-col gap-xs">
-                  <label className="text-label-sm font-bold text-[#8f8f95] uppercase">CATEGORY</label>
-                  <div className="flex flex-wrap gap-xs">
-                    {['Enterprise', 'SME', 'Consulting', 'Custom'].map(cat => (
-                      <button
-                        key={cat}
-                        type="button"
-                        onClick={() => setNewLeadForm({ ...newLeadForm, category: cat })}
-                        className={`px-md py-[6px] rounded-lg text-label-md font-bold transition-all border ${newLeadForm.category === cat ? 'bg-[#e2dfff] text-[#3323cc] border-[#e2dfff]' : 'bg-white border-[#ececec] text-[#444] hover:bg-[#f5f5f6]'}`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Stage and Urgency */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-                  {/* Stage Stepper Progression */}
-                  <div className="flex flex-col gap-xs">
-                    <label className="text-label-sm font-bold text-[#8f8f95] uppercase">PIPELINE STAGE PROGRESSION</label>
-                    <div className="grid grid-cols-4 gap-xs bg-[#f7f9fb] p-[4px] rounded-xl border border-[#ececec]">
-                      {[
-                        { id: 'new', label: 'New' },
-                        { id: 'under-review', label: 'Review' },
-                        { id: 'meeting-scheduled', label: 'Meeting' },
-                        { id: 'success', label: 'Won' }
-                      ].map(step => {
-                        const isActive = newLeadForm.stage === step.id;
-                        return (
-                          <button
-                            key={step.id}
-                            type="button"
-                            onClick={() => setNewLeadForm({ ...newLeadForm, stage: step.id })}
-                            className={`py-[8px] px-xs rounded-lg text-[11px] font-bold transition-all text-center ${isActive
-                              ? 'bg-[#3525cd] text-white shadow-sm'
-                              : 'text-[#464555] hover:bg-[#eceef0]'
-                              }`}
-                          >
-                            {step.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Deal Value Amount (Conditional or universal) */}
-                  <div className="flex flex-col gap-xs">
-                    <label className="text-label-sm font-bold text-[#8f8f95] uppercase">
-                      DEAL VALUE ($) {newLeadForm.stage === 'success' && '*'}
-                    </label>
-                    <input
-                      type="text"
-                      value={newLeadForm.amount}
-                      onChange={(e) => setNewLeadForm({ ...newLeadForm, amount: e.target.value })}
-                      placeholder="e.g. 10,000"
-                      className="w-full h-11 px-md bg-white border border-[#ececec] rounded-xl outline-none focus:ring-2 focus:ring-[#1769ff]/20 focus:border-[#1769ff] transition-all font-body-sm text-body-sm"
-                    />
+                  <label className="text-label-sm font-bold text-[#8f8f95] uppercase">PIPELINE STAGE PROGRESSION</label>
+                  <div className="grid grid-cols-4 gap-xs bg-[#f7f9fb] p-[4px] rounded-xl border border-[#ececec]">
+                    {[
+                      { id: 'new', label: 'New' },
+                      { id: 'under-review', label: 'Review' },
+                      { id: 'meeting-scheduled', label: 'Meeting' },
+                      { id: 'success', label: 'Won' }
+                    ].map(step => {
+                      const isActive = newLeadForm.stage === step.id;
+                      return (
+                        <button
+                          key={step.id}
+                          type="button"
+                          onClick={() => setNewLeadForm({ ...newLeadForm, stage: step.id })}
+                          className={`py-[8px] px-xs rounded-lg text-[11px] font-bold transition-all text-center ${isActive
+                            ? 'bg-[#3525cd] text-white shadow-sm'
+                            : 'text-[#464555] hover:bg-[#eceef0]'
+                            }`}
+                        >
+                          {step.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -921,21 +911,6 @@ function AdminPortal() {
                       className="w-full p-md bg-white border border-[#ececec] rounded-xl outline-none focus:ring-2 focus:ring-[#1769ff]/20 focus:border-[#1769ff] transition-all font-body-sm text-body-sm resize-none"
                     />
                   </div>
-                </div>
-
-                {/* Urgent Toggle Checkbox */}
-                <div className="flex items-center gap-sm bg-white p-md rounded-xl border border-[#ececec]/60">
-                  <input
-                    type="checkbox"
-                    id="urgent"
-                    checked={newLeadForm.urgent}
-                    onChange={(e) => setNewLeadForm({ ...newLeadForm, urgent: e.target.checked })}
-                    className="w-5 h-5 rounded border-[#ececec] text-[#1769ff] focus:ring-[#1769ff]/20 cursor-pointer"
-                  />
-                  <label htmlFor="urgent" className="text-body-sm font-bold text-[#111111] select-none cursor-pointer flex flex-col">
-                    <span>Mark as Urgent Opportunity</span>
-                    <span className="text-[11px] text-[#8f8f95] font-normal">Adds a high-priority tag and alerts representatives.</span>
-                  </label>
                 </div>
               </div>
 
