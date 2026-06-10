@@ -4,6 +4,7 @@ import AdminPortal from './admin/AdminPortal'
 import Auth from './components/Auth'
 import AdminAuth from './components/AdminAuth'
 import { supabase } from './utils/supabase'
+import Chatbot from './components/Chatbot'
 import './App.css'
 
 function App() {
@@ -92,7 +93,12 @@ function App() {
     if (!isAdmin) {
       return <AdminAuth session={session} />
     }
-    return <AdminPortal session={session} />
+    return (
+      <>
+        <AdminPortal session={session} />
+        {session && <Chatbot session={session} isAdmin={isAdmin} />}
+      </>
+    )
   }
 
   // Render Auth component if explicit auth path is selected, or if user has no session
@@ -103,6 +109,7 @@ function App() {
   return (
     <>
       {currentView === 'user' && <UserPortal session={session} />}
+      {session && <Chatbot session={session} isAdmin={isAdmin} />}
     </>
   )
 }
