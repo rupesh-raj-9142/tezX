@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { sb, supabase } from '../utils/supabase';
 
-function UserPortal() {
+function UserPortal({ session }) {
   const [activeTab, setActiveTab] = useState('home'); // 'home', 'inquiry', or 'workspace'
   const [isLoggedOut, setIsLoggedOut] = useState(false);
 
@@ -82,6 +82,28 @@ function UserPortal() {
     localStorage.setItem('tezx_leads', JSON.stringify(leads));
   }, [leads]);
 
+  const userEmail = session?.user?.email;
+
+  // Find user's company from people directory
+  const userPerson = people.find(p => p.email?.toLowerCase() === userEmail?.toLowerCase());
+  let userCompany = userPerson?.company;
+
+  // Fallback: Find company from leads they submitted
+  if (!userCompany) {
+    const matchingLead = leads.find(l => l.contact_email?.toLowerCase() === userEmail?.toLowerCase());
+    userCompany = matchingLead?.company;
+  }
+
+  // Filter leads and projects for this user
+  const clientLeads = leads.filter(l => 
+    l.contact_email?.toLowerCase() === userEmail?.toLowerCase() ||
+    (userCompany && l.company?.toLowerCase() === userCompany?.toLowerCase())
+  );
+
+  const clientProjects = projects.filter(p => 
+    userCompany && p.company?.toLowerCase() === userCompany?.toLowerCase()
+  );
+
   // Form State
   const [form, setForm] = useState({
     name: '',
@@ -112,7 +134,7 @@ function UserPortal() {
   };
 
   // Derived invoices dynamically from projects database
-  const invoices = projects.map(p => {
+  const invoices = clientProjects.map(p => {
     const amountVal = parseFloat(String(p.budget || '').replace(/[^0-9.]/g, '')) || 5000;
     const isPaid = (p.status || '').toLowerCase() === 'completed';
 
@@ -394,7 +416,7 @@ function UserPortal() {
   };
 
   // Calculate budget statistics for Client Workspace
-  const totalBudgetVal = projects.reduce((acc, p) => {
+  const totalBudgetVal = clientProjects.reduce((acc, p) => {
     const val = parseFloat(p.budget.replace(/[^0-9.]/g, '')) || 0;
     return acc + val;
   }, 0);
@@ -539,7 +561,7 @@ function UserPortal() {
                 <div className="relative z-10 flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15">
                   <div className="text-center">
                     <span className="text-[10px] font-bold text-white/70 block uppercase">Inquiries</span>
-                    <span className="text-[18px] font-black text-white">{leads.length}</span>
+                    <span className="text-[18px] font-black text-white">{clientLeads.length}</span>
                   </div>
                   <div className="text-center px-4 border-l border-white/10">
                     <span className="text-[10px] font-bold text-white/70 block uppercase font-black tracking-wider">Unpaid Invoices</span>
@@ -629,8 +651,8 @@ function UserPortal() {
                   </div>
 
                   <div className="space-y-4 max-h-[450px] overflow-y-auto pr-2">
-                    {leads.length > 0 ? (
-                      leads.map((lead) => (
+                    {clientLeads.length > 0 ? (
+                      clientLeads.map((lead) => (
                         <div key={lead.id} className="bg-white border border-[#ececec] rounded-2xl p-4 shadow-sm flex items-center justify-between gap-3">
                           <div className="min-w-0">
                             <h4 className="text-[14px] font-extrabold text-black truncate">{lead.company}</h4>
@@ -825,7 +847,7 @@ function UserPortal() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {leads.slice(0, 4).map((lead) => {
+                  {clientLeads.slice(0, 4).map((lead) => {
                     const step = getStepperStatus(lead.stage);
                     return (
                       <div key={lead.id} className="bg-white border border-[#ececec] rounded-3xl p-6 shadow-sm hover:shadow-md transition-all">
@@ -919,11 +941,11 @@ function UserPortal() {
                 <div className="grid grid-cols-2 gap-6 relative z-10 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15">
                   <div className="text-center">
                     <span className="text-[11px] font-bold text-white/60 block uppercase font-bold tracking-wider">Inquiry Tickets</span>
-                    <span className="text-[20px] font-extrabold text-white">{leads.length}</span>
+                    <span className="text-[20px] font-extrabold text-white">{clientLeads.length}</span>
                   </div>
                   <div className="text-center px-4 border-l border-white/10">
                     <span className="text-[11px] font-bold text-white/60 block uppercase font-bold tracking-wider font-extrabold text-white">Active Projects</span>
-                    <span className="text-[20px] font-extrabold text-[#6ffbbe]">{projects.length}</span>
+                    <span className="text-[20px] font-extrabold text-[#6ffbbe]">{clientProjects.length}</span>
                   </div>
                 </div>
               </div>
@@ -941,9 +963,9 @@ function UserPortal() {
                       Accepted Projects & Progress
                     </h3>
                     
-                    {projects.length > 0 ? (
+                    {clientProjects.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {projects.map((project) => {
+                        {clientProjects.map((project) => {
                           const pct = getProgressPercentage(project.status);
                           return (
                             <div key={project.id} className="bg-white border border-[#ececec] rounded-3xl p-6 shadow-sm hover:shadow-md hover:border-[#1769ff]/20 transition-all flex flex-col justify-between">
@@ -1015,9 +1037,9 @@ function UserPortal() {
                       Inquiry Tickets & Approvals
                     </h3>
 
-                    {leads.length > 0 ? (
+                    {clientLeads.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {leads.map((lead) => {
+                        {clientLeads.map((lead) => {
                           const step = getStepperStatus(lead.stage);
                           return (
                             <div key={lead.id} className="bg-white border border-[#ececec] rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
