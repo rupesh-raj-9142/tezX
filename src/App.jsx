@@ -93,12 +93,7 @@ function App() {
     if (!isAdmin) {
       return <AdminAuth session={session} />
     }
-    return (
-      <>
-        <AdminPortal session={session} />
-        {session && <Chatbot session={session} isAdmin={isAdmin} />}
-      </>
-    )
+    return <AdminPortal session={session} />
   }
 
   // Render Auth component if explicit auth path is selected, or if user has no session
@@ -109,7 +104,7 @@ function App() {
   return (
     <>
       {currentView === 'user' && <UserPortal session={session} />}
-      {session && <Chatbot session={session} isAdmin={isAdmin} />}
+      {session && !isAdmin && <Chatbot session={session} />}
     </>
   )
 }

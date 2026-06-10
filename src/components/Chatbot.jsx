@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, X, Send, Bot, RefreshCw, Sparkles, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const getSimulatedResponse = (text, isAdmin) => {
+const getSimulatedResponse = (text) => {
   const t = text.toLowerCase();
   
   if (t.includes('invoice') || t.includes('pay') || t.includes('billing')) {
@@ -12,7 +12,7 @@ const getSimulatedResponse = (text, isAdmin) => {
 3. Fill in your payment details (Name, Card Number, Expiry, and CVV).
 4. Click **Pay Invoice** to complete the payment.
 
-The system will display a real-time checkout verification step and instantly update the project status to **Completed** in our Supabase core!`;
+Your project status will instantly update to **Completed** once the checkout succeeds!`;
   }
   
   if (t.includes('submit') || t.includes('inquiry') || t.includes('brief')) {
@@ -21,13 +21,13 @@ The system will display a real-time checkout verification step and instantly upd
 2. Enter your Name, Email, Company, Service interest, and a brief description.
 3. Click **Submit Inquiry**. 
 
-Your brief will automatically synchronize with Supabase and immediately populate the administrator's sales pipeline!`;
+Your brief will automatically synchronize and our team will review it shortly!`;
   }
   
   if (t.includes('progress') || t.includes('stage') || t.includes('milestone')) {
-    return `The TezX project workflow progresses through three distinct status stages:
-- **New / Under Review**: Administrators are auditing scope, budget, and requirements.
-- **Review Approved / Meeting Scheduled**: A discovery meeting has been planned to map out engineering requirements.
+    return `Your project transitions through three status stages:
+- **New / Under Review**: Our team is auditing the project brief.
+- **Review Approved / Meeting Scheduled**: A discovery meeting has been planned to map out project requirements.
 - **Active Account / Won**: Project development is underway or completed, and invoices are generated in the Payments tab.`;
   }
   
@@ -37,55 +37,15 @@ Your brief will automatically synchronize with Supabase and immediately populate
 2. Write a subject and enter your query in the support ticket form.
 3. Click **Submit Support Ticket**. 
 
-Our admins will receive the ticket on their central workspace and resolve it within 4 hours.`;
+Our support team will address your request within 4 hours.`;
   }
 
-  if (t.includes('pipeline') || t.includes('deal') || t.includes('leads')) {
-    if (isAdmin) {
-      return `To manage the sales pipeline:
-1. Go to the **Admin Portal** ➔ **Deals Pipeline** view.
-2. Drag-and-drop or click on lead cards to update their stage (e.g. from *New* to *Under Review* or *Won*).
-3. Any stage transition instantly notifies the customer and updates their inquiry workspace.`;
-    }
-    return `The sales pipeline is managed by administrators. Once you submit an inquiry, an admin will review the brief, schedule discovery meetings, and promote the lead to a project. You can track progress under the **Project Status** tab.`;
-  }
+  return `I am here to guide you through the TezX Client Portal! You can ask me about project inquiries, active milestone stages, payment invoices, or support tickets. 
 
-  if (t.includes('sync') || t.includes('external') || t.includes('integration')) {
-    if (isAdmin) {
-      return `To monitor integration sync status:
-1. Go to the **Admin Portal** and look at the **Sync Applications** dashboard card.
-2. You can view real-time sync histories for Google Calendar, Slack alerts, Jira tickets, and Database sync.
-3. Click **Force Sync** on any app to trigger an immediate data reconciliation.`;
-    }
-    return `TezX CRM features a synchronized core that updates databases every 5 seconds. All lead requests, payment receipts, and project updates you submit are securely updated across both the user and administrator views instantly.`;
-  }
-
-  if (t.includes('schedule') || t.includes('meeting') || t.includes('calendar')) {
-    if (isAdmin) {
-      return `To schedule team meetings:
-1. Scroll to the **Meeting Scheduler** widget in the Admin Portal.
-2. Select an active lead, set the date and time, and input meeting notes.
-3. Click **Schedule Meeting** to automatically block calendars and notify participants.`;
-    }
-    return `Discovery meetings are scheduled by our team after you submit an inquiry. Once scheduled, a "Meeting Scheduled" status will appear under your **Project Status** tab.`;
-  }
-
-  if (t.includes('member') || t.includes('team') || t.includes('add member')) {
-    if (isAdmin) {
-      return `To manage the active administration team:
-1. Go to the **Admin Portal** ➔ **Active Team** roster.
-2. Click the **Add Member** button, fill in their credentials, role, and choose an avatar.
-3. The member card will instantly appear on the dashboard roster.`;
-    }
-    return `You can view the active TezX support team roster on the main landing desk of your portal, showing roles and availability status.`;
-  }
-
-  return `I am here to guide you through the TezX CRM! You can ask me about pipelines, payments, inquiries, meetings, or database sync logs. 
-
-Feel free to try one of the quick suggestions below or type a custom question!`;
+Try choosing one of the quick suggestions below or type a custom question!`;
 };
 
-function Chatbot({ session, isAdmin }) {
+function Chatbot({ session }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
@@ -95,32 +55,21 @@ function Chatbot({ session, isAdmin }) {
   const userEmail = session?.user?.email || 'User';
   const userName = session?.user?.user_metadata?.full_name || userEmail.split('@')[0];
 
-  const clientSuggestions = [
+  const suggestions = [
     'How do I submit an inquiry?',
     'How do I pay an invoice?',
     'Check project progress stages',
     'Who do I contact for support?'
   ];
 
-  const adminSuggestions = [
-    'How to manage pipelines?',
-    'Check sync status',
-    'How to schedule team meetings?',
-    'How to add team members?'
-  ];
-
-  const suggestions = isAdmin ? adminSuggestions : clientSuggestions;
-
   // Initialize welcome message
   useEffect(() => {
-    const welcomeMsg = isAdmin
-      ? `Hello Admin **${userName}**! I am the TezX AI engine. I can help you manage sales pipelines, schedule meetings, sync external apps, or inspect team rosters. What can I do for you today?`
-      : `Hi **${userName}**! I am your TezX assistant. I can help you submit inquiries, track project milestones, check invoices, or make payments. What can I help you with today?`;
+    const welcomeMsg = `Hi **${userName}**! I am your TezX assistant. I can help you submit inquiries, track project milestones, check invoices, or make payments. What can I help you with today?`;
 
     setMessages([
       { id: 'welcome', sender: 'bot', text: welcomeMsg, timestamp: new Date() }
     ]);
-  }, [isAdmin, userName]);
+  }, [userName]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -145,7 +94,7 @@ function Chatbot({ session, isAdmin }) {
 
     // Simulate Bot typing and response
     setTimeout(() => {
-      const botResponse = getSimulatedResponse(text, isAdmin);
+      const botResponse = getSimulatedResponse(text);
       const botMsg = {
         id: `bot-${Date.now()}`,
         sender: 'bot',
@@ -163,9 +112,7 @@ function Chatbot({ session, isAdmin }) {
   };
 
   const handleResetChat = () => {
-    const welcomeMsg = isAdmin
-      ? `Hello Admin **${userName}**! I am the TezX AI engine. I can help you manage sales pipelines, schedule meetings, sync external apps, or inspect team rosters. What can I do for you today?`
-      : `Hi **${userName}**! I am your TezX assistant. I can help you submit inquiries, track project milestones, check invoices, or make payments. What can I help you with today?`;
+    const welcomeMsg = `Hi **${userName}**! I am your TezX assistant. I can help you submit inquiries, track project milestones, check invoices, or make payments. What can I help you with today?`;
 
     setMessages([
       { id: 'welcome', sender: 'bot', text: welcomeMsg, timestamp: new Date() }
@@ -241,7 +188,7 @@ function Chatbot({ session, isAdmin }) {
                     <span>TezX Assistant</span>
                     <Sparkles className="w-3.5 h-3.5 text-brand-purple animate-pulse" />
                   </h3>
-                  <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">AI CRM engine online</p>
+                  <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Client Helper Online</p>
                 </div>
               </div>
               
